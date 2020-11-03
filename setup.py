@@ -20,10 +20,10 @@ for path in glob.glob("requirements_*.txt"):
 
 setuptools.setup(
     name="neo-mldl",
-    version="1.1.4",
-    author="Matthew Savage",
-    author_email="mdsavage@zensors.com",
-    description="Machine Learning Data Lake Utilities",
+    version="1.0.0",
+    author="Zensors' Dev Team",
+    author_email="dev-team@zensors.com",
+    description="Client library for the Zensors MLDL Product",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://zensors.com",

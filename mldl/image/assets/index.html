@@ -1,0 +1,35 @@
+<html>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="./index.css" />
+    <style>
+body {
+    margin: 0;
+    padding: 16px;
+    background-color: #6A6D7C;
+}
+    </style>
+    <script>
+const main = async() => {
+    let frameRate;
+    let numFrames;
+
+    try {
+        eval("frameRate = {{ frameRate }}");
+        eval("numFrames = {{ numFrames }}");
+    } catch (e) {
+        console.warn("No variable substitutions found for {{ frameRate }} and {{ numFrames }}. Using defaults");
+        // One minute at 6 fps
+        frameRate = 6;
+        numFrames = 360;
+    }
+
+    const { VideoManager } = await import("./index.js");
+    let videoManager = new VideoManager("#root", numFrames, frameRate);
+}
+
+main();
+    </script>
+    <body>
+        <div id="root"></div>
+    </body>
+</html>

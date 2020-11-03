@@ -1,0 +1,5 @@
+numpy>=1.19.2
+numpy-stubs @ git+git://github.com/numpy/numpy-stubs
+sortedcontainers>=0.8.1
+matplotlib>=3.3.2
+scipy>=1.5.2

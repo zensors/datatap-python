@@ -1,0 +1,38 @@
+steps:
+  - label: ":copyright: Typechecking Module"
+    commands:
+      - "echo '--- Setting Up'"
+      - "mkdir -p /build"
+      - "cp -R . /build"
+      - "cd /build"
+      - "echo '--- Installing Packages'"
+      - "pip install -r requirements_torch.txt"
+      - "pip install -e '.[metrics,torch]'"
+      - "yarn global add pyright"
+      - "echo '+++ Running Pyright'"
+      - "pyright"
+    plugins:
+      - docker#v3.7.0:
+          image: "nikolaik/python-nodejs:python3.8-nodejs12"
+
+  - label: ":python: Testing Module"
+    commands:
+      - "echo '--- Setting Up'"
+      - "mkdir -p /test"
+      - "cp -R . /test"
+      - "cd /test"
+      - "echo '--- Installing Packages'"
+      - "pip install -r requirements_torch.txt"
+      - "pip install -e '.[metrics,torch]'"
+      - "echo '+++ Running Tests'"
+      - "python -m unittest"
+    plugins:
+      - docker#v3.7.0:
+          image: "python:3.8"
+
+  - wait
+
+  - label: ":package: Building and Pushing Wheel"
+    commands:
+      - "python3.7 setup.py bdist_wheel upload -r zensors"
+    if: build.branch == "master"

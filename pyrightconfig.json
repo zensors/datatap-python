@@ -1,0 +1,16 @@
+{
+	"typeCheckingMode": "strict",
+	"reportMissingTypeStubs": "information",
+	"reportUnusedImport": "warning",
+	"reportUnusedVariable": "information",
+	"stubPath": "./typings",
+	"include": [
+		"mldl/dataset",
+		"mldl/droplet",
+		"mldl/geometry",
+		"mldl/metrics",
+		"mldl/template",
+		"mldl/utils",
+		"tests"
+	]
+}

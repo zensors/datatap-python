@@ -1,0 +1,10 @@
+/out
+/test
+/dask-*
+/*.egg-info
+/tmp*
+.venv
+__pycache__
+build
+dist
+.vscode

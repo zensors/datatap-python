@@ -1,0 +1,8 @@
+dask[complete]==2.11.0
+boto3>=1.15.14
+fastjsonschema==2.14.2
+toolz>=0.10.0
+simplejson>=3.17.0
+jsonmerge==1.7.0
+neo4j==4.0.1
+Shapely

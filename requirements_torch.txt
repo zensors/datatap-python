@@ -1,0 +1,4 @@
+--pre
+-f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+torch>=1.8.0.dev20201021+cpu
+torchvision>=0.8.0.dev20201021+cpu

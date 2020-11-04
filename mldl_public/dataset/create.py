@@ -9,7 +9,7 @@ from typing import Callable, List, Optional
 from uuid import uuid4, UUID
 from neo4j import GraphDatabase, Transaction
 
-from mldl.template import AnnotationTemplate
+from mldl_public.template import AnnotationTemplate
 
 NEO4J_PROTOCOL = getenv("MLDL_NEO4J_PROTOCOL", "neo4j")
 NEO4J_HOST = getenv("MLDL_NEO4J_HOST", "localhost")

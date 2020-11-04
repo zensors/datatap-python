@@ -4,7 +4,7 @@ import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 # mldl dependencies
-from mldl.dataset.dataset import Dataset, set_neo4j_url
+from mldl_public.dataset.dataset import Dataset, set_neo4j_url
 import mldl.utils.torchvision
 
 # We load the MLDL dataset and transform it into what torchvision models understands

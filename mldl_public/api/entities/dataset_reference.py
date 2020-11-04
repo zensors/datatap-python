@@ -1,5 +1,5 @@
 from typing import List, Optional
-from mldl.utils import basic_repr, OrNullish
+from mldl_public.utils import basic_repr, OrNullish
 
 from .dataset import Dataset
 from ..endpoints import ApiEndpoints

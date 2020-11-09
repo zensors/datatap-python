@@ -6,7 +6,7 @@ from ..utils import basic_repr
 from .class_annotation_template import ClassAnnotationTemplate
 
 
-class AnnotationTemplate():
+class ImageAnnotationTemplate():
 	classes: Mapping[str, ClassAnnotationTemplate]
 
 	def __init__(self, *, classes: Mapping[str, ClassAnnotationTemplate]):
@@ -27,10 +27,10 @@ class AnnotationTemplate():
 			for key, value in json.get("classes", {}).items()
 		}
 
-		return AnnotationTemplate(classes=classes)
+		return ImageAnnotationTemplate(classes=classes)
 
 	def __repr__(self):
 		return basic_repr(
-			"AnnotationTemplate",
+			"ImageAnnotationTemplate",
 			classes = self.classes
 		)

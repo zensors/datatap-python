@@ -5,12 +5,12 @@ import boto3
 import fsspec
 import PIL.Image as Image
 
-from mldl_public.droplet import Annotation
+from mldl_public.droplet import ImageAnnotation
 
 def get_s3_client():
 	return boto3.resource("s3")
 
-def load_image_from_annotation(annotation: Annotation, quiet: bool = False, retries: int = 2) -> Image.Image:
+def load_image_from_annotation(annotation: ImageAnnotation, quiet: bool = False, retries: int = 2) -> Image.Image:
 	cached_image = annotation.image.get_cached_image()
 	if cached_image is not None:
 		return cached_image

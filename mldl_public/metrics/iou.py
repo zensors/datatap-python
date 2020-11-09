@@ -4,13 +4,13 @@ from typing import NamedTuple, Sequence
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from ..droplet import Annotation
+from ..droplet import ImageAnnotation
 from ..geometry import Rectangle
-from ..template import AnnotationTemplate
+from ..template import ImageAnnotationTemplate
 from .precision_recall_curve import DetectionEvent, PrecisionRecallCurve
 
 
-def generate_pr_curve(ground_truths: Sequence[Annotation], predictions: Sequence[Annotation], iou_threshold: float) -> PrecisionRecallCurve:
+def generate_pr_curve(ground_truths: Sequence[ImageAnnotation], predictions: Sequence[ImageAnnotation], iou_threshold: float) -> PrecisionRecallCurve:
 	"""
 	Returns a precision-recall curve for the given ground truth and prediction annotation lists evaluated with the given
 	IOU threshold.
@@ -23,9 +23,9 @@ def generate_pr_curve(ground_truths: Sequence[Annotation], predictions: Sequence
 	return precision_recall_curve
 
 def generate_confusion_matrix(
-	template: AnnotationTemplate,
-	ground_truths: Sequence[Annotation],
-	predictions: Sequence[Annotation],
+	template: ImageAnnotationTemplate,
+	ground_truths: Sequence[ImageAnnotation],
+	predictions: Sequence[ImageAnnotation],
 	iou_threshold: float,
 	confidence_threshold: float
 ) -> ConfusionMatrix:
@@ -57,8 +57,8 @@ class GroundTruthBox(NamedTuple):
 
 def add_annotation_to_pr_curve(
 	precision_recall_curve: PrecisionRecallCurve,
-	ground_truth: Annotation,
-	prediction: Annotation,
+	ground_truth: ImageAnnotation,
+	prediction: ImageAnnotation,
 	iou_threshold: float
 ) -> None:
 	"""
@@ -119,8 +119,8 @@ def add_annotation_to_pr_curve(
 
 def add_annotation_to_confusion_matrix(
 	confusion_matrix: ConfusionMatrix,
-	ground_truth: Annotation,
-	prediction: Annotation,
+	ground_truth: ImageAnnotation,
+	prediction: ImageAnnotation,
 	iou_threshold: float,
 	confidence_threshold: float
 ) -> None:

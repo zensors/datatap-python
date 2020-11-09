@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from shapely.geometry import box
-from typing import Any, Sequence, Tuple, Optional, Union, overload
+from typing import Any, Sequence, Tuple, Union, overload
 
 from .point import Point, PointJson
 from ..utils import basic_repr

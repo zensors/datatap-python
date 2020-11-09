@@ -40,7 +40,8 @@ class Dataset:
     @overload
     def stream_split(self, split: str, chunk: int, nchunks: int) -> Generator[Annotation, None, None]: ...
     def stream_split(self, split: str, chunk: int = 0, nchunks: int = 1):
-        return self._endpoints.dataset.stream_split(self.database, self.uid, split, chunk, nchunks)
+        for droplet in self._endpoints.dataset.stream_split(self.database, self.uid, split, chunk, nchunks):
+            yield Annotation.from_json(droplet)
 
 
     def __repr__(self):

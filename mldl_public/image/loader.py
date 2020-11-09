@@ -5,7 +5,7 @@ import boto3
 import fsspec
 import PIL.Image as Image
 
-from mldl.droplet import Annotation
+from mldl_public.droplet import Annotation
 
 def get_s3_client():
 	return boto3.resource("s3")

@@ -1,8 +1,8 @@
 from typing import Generator, List, overload
 
-from mldl.droplet import Annotation
-from mldl.template import AnnotationTemplate
-from mldl.utils import basic_repr
+from mldl_public.droplet import Annotation
+from mldl_public.template import AnnotationTemplate
+from mldl_public.utils import basic_repr
 
 from ..endpoints import ApiEndpoints
 from ..types import JsonDataset

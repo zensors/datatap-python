@@ -1,4 +1,4 @@
-from mldl.utils import basic_repr
+from mldl_public.utils import basic_repr
 
 from .dataset_reference import DatasetReference, Dataset
 from ..endpoints import ApiEndpoints

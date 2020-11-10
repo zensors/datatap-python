@@ -1,4 +1,4 @@
-from mldl.metrics.precision_recall_curve import DetectionEvent, MaximizeF1Result, PrecisionRecallCurve
+from mldl_public.metrics.precision_recall_curve import DetectionEvent, MaximizeF1Result, PrecisionRecallCurve
 
 import unittest
 

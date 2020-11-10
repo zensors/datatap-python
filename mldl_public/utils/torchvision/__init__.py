@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from PIL.Image import Image
-from mldl.geometry.point import Point
-from mldl.geometry.rectangle import Rectangle
+from mldl_public.geometry.point import Point
+from mldl_public.geometry.rectangle import Rectangle
 from typing import Dict, Mapping, Tuple, Callable
 
 import torch
-from mldl.image.loader import load_image_from_annotation
-from mldl.droplet import Annotation
-from mldl.utils.dask import BagIterator, Bag
+from mldl_public.image.loader import load_image_from_annotation
+from mldl_public.droplet import Annotation
+from mldl_public.utils.dask import BagIterator, Bag
 
 def load_one(a: Annotation, id_map: Mapping[str, int]):
 	image = load_image_from_annotation(a).convert("RGB")

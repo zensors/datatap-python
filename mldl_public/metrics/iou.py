@@ -1,4 +1,4 @@
-from mldl.metrics.confusion_matrix import ConfusionMatrix
+from mldl_public.metrics.confusion_matrix import ConfusionMatrix
 from typing import NamedTuple, Sequence
 
 import numpy as np

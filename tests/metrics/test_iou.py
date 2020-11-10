@@ -1,13 +1,13 @@
-from mldl.metrics.confusion_matrix import ConfusionMatrix
-from mldl.template.instance_template import InstanceTemplate
-from mldl.template.class_annotation_template import ClassAnnotationTemplate
-from mldl.template.annotation_template import AnnotationTemplate
+from mldl_public.metrics.confusion_matrix import ConfusionMatrix
+from mldl_public.template.instance_template import InstanceTemplate
+from mldl_public.template.class_annotation_template import ClassAnnotationTemplate
+from mldl_public.template.annotation_template import AnnotationTemplate
 import unittest
 
-from mldl.droplet import Annotation, ClassAnnotation, Image, Instance
-from mldl.geometry import Point, Rectangle
-from mldl.metrics.iou import add_annotation_to_confusion_matrix, add_annotation_to_pr_curve, generate_confusion_matrix, generate_pr_curve
-from mldl.metrics.precision_recall_curve import DetectionEvent, PrecisionRecallCurve
+from mldl_public.droplet import Annotation, ClassAnnotation, Image, Instance
+from mldl_public.geometry import Point, Rectangle
+from mldl_public.metrics.iou import add_annotation_to_confusion_matrix, add_annotation_to_pr_curve, generate_confusion_matrix, generate_pr_curve
+from mldl_public.metrics.precision_recall_curve import DetectionEvent, PrecisionRecallCurve
 
 import numpy as np
 

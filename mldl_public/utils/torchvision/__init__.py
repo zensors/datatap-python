@@ -5,12 +5,11 @@ from mldl_public.geometry import Rectangle
 from typing import Dict, Mapping, Tuple, Callable
 
 import torch
-from mldl_public.image.loader import load_image_from_annotation
 from mldl_public.droplet import ImageAnnotation
 from mldl_public.utils.dask import BagIterator, Bag
 
 def load_one(a: ImageAnnotation, id_map: Mapping[str, int]):
-	image = load_image_from_annotation(a).convert("RGB")
+	image = a.image.get_pil_image().convert("RGB")
 	w, h = image.size
 	boxes = []
 	labels = []

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from mldl_public.utils import basic_repr
 
 from ..endpoints import ApiEndpoints
@@ -12,7 +14,7 @@ class User:
     email: str
 
     @staticmethod
-    def from_json(endpoints: ApiEndpoints, json: JsonUser):
+    def from_json(endpoints: ApiEndpoints, json: JsonUser) -> User:
         return User(
             endpoints,
             json["uid"],
@@ -28,5 +30,5 @@ class User:
         self.last_name = last_name
         self.email = email
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return basic_repr("User", self.uid, first_name = self.first_name, last_name = self.last_name, email = self.email)

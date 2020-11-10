@@ -20,19 +20,19 @@ class ClassAnnotationTemplate():
 		self.instances = instances
 		self.multi_instances = multi_instances
 
-	def to_json(self):
+	def to_json(self) -> Dict[str, Any]:
 		json = {}
 		if self.instances is not None: json["instances"] = self.instances.to_json()
 		if self.multi_instances is not None: json["multiInstances"] = self.multi_instances.to_json()
 		return json
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]):
+	def from_json(json: Dict[str, Any]) -> ClassAnnotationTemplate:
 		instances = InstanceTemplate.from_json(json["instances"]) if "instances" in json else None
 		multi_instances = MultiInstanceTemplate.from_json(json["multiInstances"]) if "multiInstances" in json else None
 		return ClassAnnotationTemplate(instances=instances, multi_instances=multi_instances)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr(
 			"ClassAnnotationTemplate",
 			instances = self.instances,

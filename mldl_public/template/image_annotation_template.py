@@ -5,14 +5,13 @@ from typing import Any, Dict, Mapping
 from ..utils import basic_repr
 from .class_annotation_template import ClassAnnotationTemplate
 
-
-class AnnotationTemplate():
+class ImageAnnotationTemplate():
 	classes: Mapping[str, ClassAnnotationTemplate]
 
 	def __init__(self, *, classes: Mapping[str, ClassAnnotationTemplate]):
 		self.classes = classes
 
-	def to_json(self):
+	def to_json(self) -> Dict[str, Any]:
 		return {
 			"classes": {
 				class_name: class_template.to_json()
@@ -21,16 +20,16 @@ class AnnotationTemplate():
 		}
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]):
+	def from_json(json: Dict[str, Any]) -> ImageAnnotationTemplate:
 		classes = {
 			key: ClassAnnotationTemplate.from_json(value)
 			for key, value in json.get("classes", {}).items()
 		}
 
-		return AnnotationTemplate(classes=classes)
+		return ImageAnnotationTemplate(classes=classes)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr(
-			"AnnotationTemplate",
+			"ImageAnnotationTemplate",
 			classes = self.classes
 		)

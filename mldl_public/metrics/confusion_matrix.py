@@ -15,15 +15,15 @@ class ConfusionMatrix:
 		dim = len(self.classes)
 		self.matrix = matrix if matrix is not None else np.zeros((dim, dim))
 
-	def add_detection(self, ground_truth_class: str, prediction_class: str, count: int = 1):
+	def add_detection(self, ground_truth_class: str, prediction_class: str, count: int = 1) -> None:
 		r = self.class_map[ground_truth_class]
 		c = self.class_map[prediction_class]
 		self.matrix[r, c] += count
 
-	def add_false_negative(self, ground_truth_class: str, count: int = 1):
+	def add_false_negative(self, ground_truth_class: str, count: int = 1) -> None:
 		self.add_detection(ground_truth_class, "__background__", count)
 
-	def add_false_positive(self, ground_truth_class: str, count: int = 1):
+	def add_false_positive(self, ground_truth_class: str, count: int = 1) -> None:
 		self.add_detection("__background__", ground_truth_class, count)
 
 	def __add__(self, other: Any) -> ConfusionMatrix:

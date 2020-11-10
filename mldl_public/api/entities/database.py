@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import List
+
 from mldl_public.utils import basic_repr
 
 from .dataset_reference import DatasetReference, Dataset
@@ -12,7 +15,7 @@ class Database:
     connection_options: JsonDatabaseOptions
 
     @staticmethod
-    def from_json(endpoints: ApiEndpoints, json: JsonDatabase):
+    def from_json(endpoints: ApiEndpoints, json: JsonDatabase) -> Database:
         return Database(
             endpoints,
             uid = json["uid"],
@@ -26,13 +29,13 @@ class Database:
         self.name = name
         self.connection_options = connection_options
 
-    def get_dataset_list(self):
+    def get_dataset_list(self) -> List[DatasetReference]:
         return [
             DatasetReference.from_json(self._endpoints, dataset_json)
             for dataset_json in self._endpoints.dataset.list(self.uid)
         ]
 
-    def get_dataset_by_uid(self, dataset_uid: str):
+    def get_dataset_by_uid(self, dataset_uid: str) -> Dataset:
         return Dataset.from_json(
             self._endpoints,
             self._endpoints.dataset.query(self.uid, dataset_uid)

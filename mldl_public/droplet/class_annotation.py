@@ -1,5 +1,4 @@
 from __future__ import annotations
-from operator import mul
 
 from typing import Any, Mapping, Sequence
 
@@ -13,7 +12,7 @@ class ClassAnnotation:
 	multi_instances: Sequence[MultiInstance]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]):
+	def from_json(json: Mapping[str, Any]) -> ClassAnnotation:
 		return ClassAnnotation(
 			instances = [Instance.from_json(instance) for instance in json["instances"]] if "instances" in json else [],
 			multi_instances = [MultiInstance.from_json(multi_instance) for multi_instance in json["multiInstances"]] if "multiInstances" in json else []
@@ -40,10 +39,10 @@ class ClassAnnotation:
 				multi_instances = multi_instances,
 			)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("ClassAnnotation", instances = self.instances, multi_instances = self.multi_instances)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, ClassAnnotation):
 			return NotImplemented
 		return self.instances == other.instances and self.multi_instances == other.multi_instances

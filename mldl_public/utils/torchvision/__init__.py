@@ -1,17 +1,15 @@
 from __future__ import annotations
 
 from PIL.Image import Image
-from mldl_public.geometry.point import Point
-from mldl_public.geometry.rectangle import Rectangle
-from typing import Dict, Mapping, Tuple, Callable
+from mldl_public.geometry import Rectangle
+from typing import Dict, Iterator, Mapping, Tuple, Callable
 
 import torch
-from mldl_public.image.loader import load_image_from_annotation
-from mldl_public.droplet import Annotation
+from mldl_public.droplet import ImageAnnotation
 from mldl_public.utils.dask import BagIterator, Bag
 
-def load_one(a: Annotation, id_map: Mapping[str, int]):
-	image = load_image_from_annotation(a).convert("RGB")
+def load_one(a: ImageAnnotation, id_map: Mapping[str, int]) -> Tuple[Image, Dict[str, torch.Tensor]]:
+	image = a.image.get_pil_image().convert("RGB")
 	w, h = image.size
 	boxes = []
 	labels = []
@@ -36,7 +34,7 @@ def load_one(a: Annotation, id_map: Mapping[str, int]):
 	return image, target
 
 
-def load_bag(bag: Bag[Annotation], id_map: Mapping[str, int]):
+def load_bag(bag: Bag[ImageAnnotation], id_map: Mapping[str, int]) -> Iterator[Tuple[Image, Dict[str, torch.Tensor]]]:
 	iterator = BagIterator(bag)
-	curried: Callable[[Annotation], Tuple[Image, Dict[str, torch.Tensor]]] = lambda x: load_one(x, id_map)
+	curried: Callable[[ImageAnnotation], Tuple[Image, Dict[str, torch.Tensor]]] = lambda x: load_one(x, id_map)
 	return map(curried, iterator)

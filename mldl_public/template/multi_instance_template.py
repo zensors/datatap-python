@@ -18,19 +18,19 @@ class MultiInstanceTemplate():
 		self.bounding_box = bounding_box
 		self.segmentation = segmentation
 
-	def to_json(self):
+	def to_json(self) -> Dict[str, Any]:
 		json = {}
 		if self.bounding_box: json["boundingBox"] = True
 		if self.segmentation: json["segmentation"] = True
 		return json
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]):
+	def from_json(json: Dict[str, Any]) -> MultiInstanceTemplate:
 		bounding_box = json.get("boundingBox", False)
 		segmentation = json.get("segmentation", False)
 		return MultiInstanceTemplate(bounding_box=bounding_box, segmentation=segmentation)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr(
 			"MultiInstanceTemplate",
 			bounding_box = self.bounding_box,

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import sys
+from io import BytesIO
 from typing import Any, Mapping, Optional, Sequence
 
+import fsspec
 import PIL.Image
 
 from ..utils import basic_repr
@@ -16,7 +19,7 @@ class Image:
 	_pil_image: Optional[PIL.Image.Image]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]):
+	def from_json(json: Mapping[str, Any]) -> Image:
 		return Image(
 			paths = json["paths"],
 			hash = json.get("hash"),
@@ -24,7 +27,7 @@ class Image:
 		)
 
 	@staticmethod
-	def from_pil(pil_image: PIL.Image.Image):
+	def from_pil(pil_image: PIL.Image.Image) -> Image:
 		image = Image(
 			paths = [],
 		)
@@ -35,16 +38,29 @@ class Image:
 		self.paths = paths
 		self.hash = hash
 		self.camera_metadata = camera_metadata
-		# PIL Images aren't part of the standard API, so we require that you call [from_pil] to load them in
 		self._pil_image = None
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("Image", paths = self.paths, hash = self.hash, camera_metadata = self.camera_metadata)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, Image):
 			return NotImplemented
 		return self.paths == other.paths and self.camera_metadata == other.camera_metadata
 
-	def get_cached_image(self) -> Optional[PIL.Image.Image]:
-		return self._pil_image
+	# TODO(mdsavage): consider using functools.cache here if we upgrade to Python >= 3.9
+	def get_pil_image(self, quiet: bool = False, attempts: int = 3) -> PIL.Image.Image:
+		if self._pil_image is not None:
+			return self._pil_image
+
+		for path in self.paths:
+			for i in range(attempts):
+				try:
+					with fsspec.open(path) as f:
+						self._pil_image = PIL.Image.open(BytesIO(f.read()))
+						return self._pil_image
+				except Exception as e:
+					if not quiet:
+						print(f"Cannot load image {path}, with error {str(e)}, attempt ({i + 1}/{attempts})", file = sys.stderr)
+
+		raise FileNotFoundError("All paths for image failed to load")

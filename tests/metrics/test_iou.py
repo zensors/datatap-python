@@ -1,15 +1,19 @@
-from mldl_public.metrics.confusion_matrix import ConfusionMatrix
-from mldl_public.template.instance_template import InstanceTemplate
-from mldl_public.template.class_annotation_template import ClassAnnotationTemplate
-from mldl_public.template.annotation_template import AnnotationTemplate
 import unittest
 
-from mldl_public.droplet import Annotation, ClassAnnotation, Image, Instance
-from mldl_public.geometry import Point, Rectangle
-from mldl_public.metrics.iou import add_annotation_to_confusion_matrix, add_annotation_to_pr_curve, generate_confusion_matrix, generate_pr_curve
-from mldl_public.metrics.precision_recall_curve import DetectionEvent, PrecisionRecallCurve
-
 import numpy as np
+from mldl_public.droplet import (ClassAnnotation, Image, ImageAnnotation,
+                                 Instance)
+from mldl_public.geometry import Point, Rectangle
+from mldl_public.metrics.confusion_matrix import ConfusionMatrix
+from mldl_public.metrics.iou import (add_annotation_to_confusion_matrix,
+                                     add_annotation_to_pr_curve,
+                                     generate_confusion_matrix,
+                                     generate_pr_curve)
+from mldl_public.metrics.precision_recall_curve import (DetectionEvent,
+                                                        PrecisionRecallCurve)
+from mldl_public.template import ClassAnnotationTemplate
+from mldl_public.template import ImageAnnotationTemplate as AnnotationTemplate
+from mldl_public.template import InstanceTemplate
 
 tpl = AnnotationTemplate(
 	classes = {
@@ -24,7 +28,7 @@ tpl = AnnotationTemplate(
 
 im = Image(paths = [])
 
-gt1 = Annotation(
+gt1 = ImageAnnotation(
 	image = im,
 	classes = {
 		"a": ClassAnnotation(
@@ -41,7 +45,7 @@ gt1 = Annotation(
 	}
 )
 
-pred1 = Annotation(
+pred1 = ImageAnnotation(
 	image = im,
 	classes = {
 		"a": ClassAnnotation(
@@ -59,7 +63,7 @@ pred1 = Annotation(
 	}
 )
 
-gt2 = Annotation(
+gt2 = ImageAnnotation(
 	image = im,
 	classes = {
 		"a": ClassAnnotation(
@@ -73,7 +77,7 @@ gt2 = Annotation(
 	}
 )
 
-pred2 = Annotation(
+pred2 = ImageAnnotation(
 	image = im,
 	classes = {
 		"a": ClassAnnotation(

@@ -11,7 +11,7 @@ class Mask:
 	polygons: Sequence[Polygon]
 
 	@staticmethod
-	def from_json(json: MaskJson):
+	def from_json(json: MaskJson) -> Mask:
 		return Mask([Polygon.from_json(poly) for poly in json])
 
 	def __init__(self, polygons: Sequence[Polygon]):
@@ -23,15 +23,15 @@ class Mask:
 	def to_json(self) -> MaskJson:
 		return [polygon.to_json() for polygon in self.polygons]
 
-	def assert_valid(self):
+	def assert_valid(self) -> None:
 		for polygon in self.polygons:
 			polygon.assert_valid()
 		# TODO(mdsavage): check for invalid polygon intersections?
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("Mask", self.polygons)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		# TODO(mdsavage): currently, this requires the polygons to be in the same order, not just represent the same mask
 		if not isinstance(other, Mask):
 			return NotImplemented

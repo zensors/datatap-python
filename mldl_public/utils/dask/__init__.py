@@ -39,7 +39,7 @@ class BagIterator(Generic[T], Iterator[T], Iterable[T]):
 		self.items = []
 		self._enqueue(preload)
 
-	def __iter__(self):
+	def __iter__(self) -> BagIterator[T]:
 		return self
 
 	def __next__(self) -> T:

@@ -5,12 +5,13 @@
 	"reportUnusedVariable": "information",
 	"stubPath": "./typings",
 	"include": [
-		"mldl/dataset",
-		"mldl/droplet",
-		"mldl/geometry",
-		"mldl/metrics",
-		"mldl/template",
-		"mldl/utils",
+		"mldl_public/api",
+		"mldl_public/dataset",
+		"mldl_public/droplet",
+		"mldl_public/geometry",
+		"mldl_public/metrics",
+		"mldl_public/template",
+		"mldl_public/utils",
 		"tests"
 	]
 }

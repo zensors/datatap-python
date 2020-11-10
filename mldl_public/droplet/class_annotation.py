@@ -1,5 +1,4 @@
 from __future__ import annotations
-from operator import mul
 
 from typing import Any, Mapping, Sequence
 

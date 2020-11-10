@@ -4,24 +4,24 @@ from typing import Any, Mapping, Optional, Sequence
 
 from ..geometry import Mask
 from ..utils import basic_repr
-from .annotation import Annotation
+from .image_annotation import ImageAnnotation
 from .video import Video
 
 
 class VideoAnnotation:
 	video: Video
-	frames: Sequence[Annotation]
+	frames: Sequence[ImageAnnotation]
 	mask: Optional[Mask]
 
 	@staticmethod
 	def from_json(json: Mapping[str, Any]):
 		return VideoAnnotation(
-			frames = [Annotation.from_json(annotation) for annotation in json["frames"]],
+			frames = [ImageAnnotation.from_json(annotation) for annotation in json["frames"]],
 			video = Video.from_json(json["video"]),
 			mask = Mask.from_json(json["mask"]) if "mask" in json else None
 		)
 
-	def __init__(self, *, video: Video, frames: Sequence[Annotation], mask: Optional[Mask] = None):
+	def __init__(self, *, video: Video, frames: Sequence[ImageAnnotation], mask: Optional[Mask] = None):
 		self.video = video
 		self.frames = frames
 		self.mask = mask

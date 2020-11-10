@@ -14,7 +14,7 @@ class VideoAnnotation:
 	mask: Optional[Mask]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]):
+	def from_json(json: Mapping[str, Any]) -> VideoAnnotation:
 		return VideoAnnotation(
 			frames = [ImageAnnotation.from_json(annotation) for annotation in json["frames"]],
 			video = Video.from_json(json["video"]),
@@ -32,10 +32,10 @@ class VideoAnnotation:
 				+ f"failed on video annotation {repr(self)}"
 			)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("VideoAnnotation", video = self.video, frames = self.frames, mask = self.mask)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, VideoAnnotation):
 			return NotImplemented
 		return self.frames == other.frames

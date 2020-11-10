@@ -12,7 +12,7 @@ class CameraMetadata:
 	taken_at: datetime
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]):
+	def from_json(json: Mapping[str, Any]) -> CameraMetadata:
 		return CameraMetadata(
 			camera_uid = json["cameraUid"],
 			taken_at = datetime.fromtimestamp(json["takenAt"]/1000)
@@ -22,10 +22,10 @@ class CameraMetadata:
 		self.camera_uid = camera_uid
 		self.taken_at = taken_at
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("CameraMetadata", camera_uid = self.camera_uid, taken_at = self.taken_at)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, CameraMetadata):
 			return NotImplemented
 		return self.camera_uid == other.camera_uid and self.taken_at == other.taken_at

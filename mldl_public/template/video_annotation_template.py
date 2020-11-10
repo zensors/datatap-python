@@ -12,15 +12,15 @@ class VideoAnnotationTemplate():
 	def __init__(self, *, frames: ImageAnnotationTemplate):
 		self.frames = frames
 
-	def to_json(self):
+	def to_json(self) -> Dict[str, Any]:
 		return { "frames": self.frames.to_json() }
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]):
+	def from_json(json: Dict[str, Any]) -> VideoAnnotationTemplate:
 		frames = ImageAnnotationTemplate.from_json(json["frames"])
 		return VideoAnnotationTemplate(frames=frames)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr(
 			"VideoAnnotationTemplate",
 			frames = self.frames

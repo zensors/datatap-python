@@ -11,7 +11,7 @@ class Polygon:
 	points: Sequence[Point]
 
 	@staticmethod
-	def from_json(json: PolygonJson):
+	def from_json(json: PolygonJson) -> Polygon:
 		return Polygon([Point.from_json(pt) for pt in json])
 
 	def __init__(self, points: Sequence[Point]):
@@ -20,21 +20,21 @@ class Polygon:
 		if len(self.points) < 3:
 			raise ValueError(f"A polygon must have at least three points; failed on polygon {repr(self)}")
 
-	def scale(self, factor: Union[float, int, Tuple[float, float], Point]):
+	def scale(self, factor: Union[float, int, Tuple[float, float], Point]) -> Polygon:
 		return Polygon([p.scale(factor) for p in self.points])
 
 	def to_json(self) -> PolygonJson:
 		return [point.to_json() for point in self.points]
 
-	def assert_valid(self):
+	def assert_valid(self) -> None:
 		for point in self.points:
 			point.assert_valid()
 		# TODO(mdsavage): check for self-intersection?
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("Polygon", self.points)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		# TODO(mdsavage): currently, this requires the points to be in the same order, not just represent the same polygon
 		if not isinstance(other, Polygon):
 			return NotImplemented
@@ -44,5 +44,5 @@ class Polygon:
 	def __mul__(self, o: int) -> Polygon: ...
 	@overload
 	def __mul__(self, o: float) -> Polygon: ...
-	def __mul__(self, o: Any):
+	def __mul__(self, o: Any) -> Polygon:
 		return Polygon([p * o for p in self.points])

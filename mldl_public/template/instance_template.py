@@ -27,7 +27,7 @@ class InstanceTemplate():
 		self.attributes = attributes
 		self.identity = identity
 
-	def to_json(self):
+	def to_json(self) -> Dict[str, Any]:
 		json = {}
 		if self.bounding_box: json["boundingBox"] = True
 		if self.segmentation: json["segmentation"] = True
@@ -37,7 +37,7 @@ class InstanceTemplate():
 		return json
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]):
+	def from_json(json: Dict[str, Any]) -> InstanceTemplate:
 		bounding_box = json.get("boundingBox", False)
 		segmentation = json.get("segmentation", False)
 		keypoints = set(json.get("keypoints", []))
@@ -54,7 +54,7 @@ class InstanceTemplate():
 			identity=identity,
 		)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr(
 			"InstanceTemplate",
 			bounding_box = self.bounding_box,

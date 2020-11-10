@@ -13,7 +13,7 @@ class Video:
 	camera_metadata: Optional[CameraMetadata]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]):
+	def from_json(json: Mapping[str, Any]) -> Video:
 		return Video(
 			paths = json["paths"],
 			hash = json.get("hash"),
@@ -34,7 +34,7 @@ class Video:
 		self.name = name
 		self.camera_metadata = camera_metadata
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr(
 			"Video",
 			paths = self.paths,

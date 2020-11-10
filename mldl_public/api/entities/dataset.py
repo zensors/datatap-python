@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Generator, List, overload
 
 from mldl_public.droplet import ImageAnnotation
@@ -17,7 +19,7 @@ class Dataset:
     template: ImageAnnotationTemplate
 
     @staticmethod
-    def from_json(endpoints: ApiEndpoints, json: JsonDataset):
+    def from_json(endpoints: ApiEndpoints, json: JsonDataset) -> Dataset:
         return Dataset(
             endpoints,
             name = json["name"],
@@ -39,11 +41,11 @@ class Dataset:
     def stream_split(self, split: str) -> Generator[ImageAnnotation, None, None]: ...
     @overload
     def stream_split(self, split: str, chunk: int, nchunks: int) -> Generator[ImageAnnotation, None, None]: ...
-    def stream_split(self, split: str, chunk: int = 0, nchunks: int = 1):
+    def stream_split(self, split: str, chunk: int = 0, nchunks: int = 1) -> Generator[ImageAnnotation, None, None]:
         for droplet in self._endpoints.dataset.stream_split(self.database, self.uid, split, chunk, nchunks):
             yield ImageAnnotation.from_json(droplet)
 
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return basic_repr("Dataset", self.uid, name = self.name, database = self.database, splits = self.splits)
 

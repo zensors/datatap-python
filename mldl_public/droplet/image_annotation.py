@@ -14,7 +14,7 @@ class ImageAnnotation:
 	mask: Optional[Mask]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]):
+	def from_json(json: Mapping[str, Any]) -> ImageAnnotation:
 		return ImageAnnotation(
 			image = Image.from_json(json["image"]),
 			classes = {
@@ -40,7 +40,7 @@ class ImageAnnotation:
 			mask = self.mask,
 		)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr(
 			"ImageAnnotation",
 			image = self.image,
@@ -48,7 +48,7 @@ class ImageAnnotation:
 			classes = self.classes
 		)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, ImageAnnotation):
 			return NotImplemented
 		return self.image == other.image and self.classes == other.classes and self.mask == other.mask

@@ -19,7 +19,7 @@ class Image:
 	_pil_image: Optional[PIL.Image.Image]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]):
+	def from_json(json: Mapping[str, Any]) -> Image:
 		return Image(
 			paths = json["paths"],
 			hash = json.get("hash"),
@@ -27,7 +27,7 @@ class Image:
 		)
 
 	@staticmethod
-	def from_pil(pil_image: PIL.Image.Image):
+	def from_pil(pil_image: PIL.Image.Image) -> Image:
 		image = Image(
 			paths = [],
 		)
@@ -40,10 +40,10 @@ class Image:
 		self.camera_metadata = camera_metadata
 		self._pil_image = None
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("Image", paths = self.paths, hash = self.hash, camera_metadata = self.camera_metadata)
 
-	def __eq__(self, other: Any):
+	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, Image):
 			return NotImplemented
 		return self.paths == other.paths and self.camera_metadata == other.camera_metadata

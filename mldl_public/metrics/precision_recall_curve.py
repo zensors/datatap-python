@@ -13,7 +13,7 @@ class DetectionEvent(NamedTuple):
 
 	@overload
 	def __add__(self, other: DetectionEvent) -> DetectionEvent: ...
-	def __add__(self, other: Any):
+	def __add__(self, other: Any) -> DetectionEvent:
 		if isinstance(other, DetectionEvent):
 			return DetectionEvent(self.true_positive_delta + other.true_positive_delta, self.false_positive_delta + other.false_positive_delta)
 		return NotImplemented
@@ -45,12 +45,12 @@ class PrecisionRecallCurve:
 	def clone(self) -> PrecisionRecallCurve:
 		return PrecisionRecallCurve(self.events.copy(), self.ground_truth_positives)
 
-	def add_event(self, threshold: float, event: DetectionEvent):
+	def add_event(self, threshold: float, event: DetectionEvent) -> None:
 		if threshold not in self.events:
 			self.events[threshold] = DetectionEvent(0, 0)
 		self.events[threshold] += event
 
-	def add_ground_truth_positives(self, count: int):
+	def add_ground_truth_positives(self, count: int) -> None:
 		self.ground_truth_positives += count
 
 	def maximize_f1(self) -> MaximizeF1Result:
@@ -95,7 +95,7 @@ class PrecisionRecallCurve:
 
 	@overload
 	def __add__(self, other: PrecisionRecallCurve) -> PrecisionRecallCurve: ...
-	def __add__(self, other: Any):
+	def __add__(self, other: Any) -> PrecisionRecallCurve:
 		if isinstance(other, PrecisionRecallCurve):
 			ret = self.clone()
 			ret.add_ground_truth_positives(other.ground_truth_positives)

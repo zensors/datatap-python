@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from shapely.geometry import box
+from shapely.geometry import box, Polygon as ShapelyPolygon
 from typing import Any, Sequence, Tuple, Union, overload
 
 from .point import Point, PointJson
@@ -13,11 +13,11 @@ class Rectangle:
 	p2: Point
 
 	@staticmethod
-	def from_json(json: RectangleJson):
+	def from_json(json: RectangleJson) -> Rectangle:
 		return Rectangle(Point.from_json(json[0]), Point.from_json(json[1]))
 
 	@staticmethod
-	def from_point_set(points: Sequence[Point]):
+	def from_point_set(points: Sequence[Point]) -> Rectangle:
 		return Rectangle(
 			Point(min(p.x for p in points), min(p.y for p in points)),
 			Point(max(p.x for p in points), max(p.y for p in points))
@@ -31,7 +31,7 @@ class Rectangle:
 			self.p1 = p1
 			self.p2 = p2
 
-	def assert_valid(self):
+	def assert_valid(self) -> None:
 		self.p1.assert_valid()
 		self.p2.assert_valid()
 		assert self.p1.x < self.p2.x and self.p1.y < self.p2.y, f"Rectangle has non-positive area; failed on rectangle {repr(self)}"
@@ -39,7 +39,7 @@ class Rectangle:
 	def to_json(self) -> RectangleJson:
 		return (self.p1.to_json(), self.p2.to_json())
 
-	def to_shapely(self):
+	def to_shapely(self) -> ShapelyPolygon:
 		return box(self.p1.x, self.p1.y, self.p2.x, self.p2.y)
 
 	def to_xywh_tuple(self) -> Tuple[float, float, float, float]:
@@ -50,7 +50,7 @@ class Rectangle:
 	def to_xyxy_tuple(self) -> Tuple[float, float, float, float]:
 		return (self.p1.x, self.p1.y, self.p2.x, self.p2.y)
 
-	def area(self):
+	def area(self) -> float:
 		return abs(self.p1.x - self.p2.x) * abs(self.p1.y - self.p2.y)
 
 	def iou(self, other: Rectangle) -> float:
@@ -81,10 +81,10 @@ class Rectangle:
 	def normalize(self) -> Rectangle:
 		return Rectangle(self.p1, self.p2, True)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return basic_repr("Rectangle", self.p1, self.p2)
 
-	def __hash__(self):
+	def __hash__(self) -> int:
 		return hash((self.p1, self.p2))
 
 	def __eq__(self, other: Any) -> bool:
@@ -96,5 +96,5 @@ class Rectangle:
 	def __mul__(self, o: int) -> Rectangle: ...
 	@overload
 	def __mul__(self, o: float) -> Rectangle: ...
-	def __mul__(self, o: Any):
+	def __mul__(self, o: Any) -> Rectangle:
 		return Rectangle(self.p1 * o, self.p2 * o)

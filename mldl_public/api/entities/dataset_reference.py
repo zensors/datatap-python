@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Optional
 from mldl_public.utils import basic_repr, OrNullish
 
@@ -14,7 +16,7 @@ class DatasetReference:
     previous_values: List[str]
 
     @staticmethod
-    def from_json(endpoints: ApiEndpoints, json: JsonDatasetReference):
+    def from_json(endpoints: ApiEndpoints, json: JsonDatasetReference) -> DatasetReference:
         return DatasetReference(
             endpoints,
             name = json["name"],
@@ -30,11 +32,11 @@ class DatasetReference:
         self.dataset = dataset
         self.previous_values = previous_values
 
-    def get_previous_datasets(self):
+    def get_previous_datasets(self) -> List[Dataset]:
         return [
             Dataset.from_json(self._endpoints, self._endpoints.dataset.query(self.database, dataset_uid))
             for dataset_uid in self.previous_values
         ]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return basic_repr("DatasetReference", name = self.name, database = self.database, previous_values = self.previous_values, dataset = self.dataset)

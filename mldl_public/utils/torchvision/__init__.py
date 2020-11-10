@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from PIL.Image import Image
 from mldl_public.geometry import Rectangle
-from typing import Dict, Mapping, Tuple, Callable
+from typing import Dict, Iterator, Mapping, Tuple, Callable
 
 import torch
 from mldl_public.droplet import ImageAnnotation
 from mldl_public.utils.dask import BagIterator, Bag
 
-def load_one(a: ImageAnnotation, id_map: Mapping[str, int]):
+def load_one(a: ImageAnnotation, id_map: Mapping[str, int]) -> Tuple[Image, Dict[str, torch.Tensor]]:
 	image = a.image.get_pil_image().convert("RGB")
 	w, h = image.size
 	boxes = []
@@ -34,7 +34,7 @@ def load_one(a: ImageAnnotation, id_map: Mapping[str, int]):
 	return image, target
 
 
-def load_bag(bag: Bag[ImageAnnotation], id_map: Mapping[str, int]):
+def load_bag(bag: Bag[ImageAnnotation], id_map: Mapping[str, int]) -> Iterator[Tuple[Image, Dict[str, torch.Tensor]]]:
 	iterator = BagIterator(bag)
 	curried: Callable[[ImageAnnotation], Tuple[Image, Dict[str, torch.Tensor]]] = lambda x: load_one(x, id_map)
 	return map(curried, iterator)

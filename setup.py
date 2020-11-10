@@ -20,7 +20,7 @@ for path in glob.glob("requirements_*.txt"):
 
 setuptools.setup(
     name="mldl-public",
-    version="1.0.0",
+    version="1.0.1",
     author="Zensors' Dev Team",
     author_email="dev-team@zensors.com",
     description="Client library for the Zensors MLDL Product",
@@ -28,7 +28,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://zensors.com",
     packages=setuptools.find_packages(),
-    package_data={"": ["image/assets/*"]},
+    package_data={"": ["image/assets/*"], "mldl_public": ["py.typed"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",

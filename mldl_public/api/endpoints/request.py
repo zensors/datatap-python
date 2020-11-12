@@ -71,6 +71,14 @@ class StreamRequester(Generic[_T]):
             stream=True
         )
 
+        if not response.ok:
+            error: str
+            try:
+                error = response.json()["error"]
+            except:
+                error = response.content.decode("ascii")
+            raise Exception(error)
+
         for line in response.iter_lines(decode_unicode=True):
             yield json.loads(line)
 

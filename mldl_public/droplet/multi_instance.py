@@ -2,9 +2,18 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Optional
 
-from ..geometry import Mask, Rectangle
+from typing_extensions import TypedDict
+
+from ..geometry import Mask, MaskJson, Rectangle, RectangleJson
 from ..utils import basic_repr
 
+class _MultiInstanceJsonOptional(TypedDict, total = False):
+	segmentation: MaskJson
+	count: int
+	confidence: float
+
+class MultiInstanceJson(_MultiInstanceJsonOptional, TypedDict):
+	boundingBox: RectangleJson
 
 class MultiInstance:
 	bounding_box: Rectangle
@@ -50,3 +59,19 @@ class MultiInstance:
 		if not isinstance(other, MultiInstance):
 			return NotImplemented
 		return self.bounding_box == other.bounding_box and self.segmentation == other.segmentation and self.count == other.count and self.confidence == other.confidence
+
+	def to_json(self) -> MultiInstanceJson:
+		json: MultiInstanceJson = {
+			"boundingBox": self.bounding_box.to_json()
+		}
+
+		if self.segmentation is not None:
+			json["segmentation"] = self.segmentation.to_json()
+
+		if self.count is not None:
+			json["count"] = self.count
+
+		if self.confidence is not None:
+			json["confidence"] = self.confidence
+
+		return json

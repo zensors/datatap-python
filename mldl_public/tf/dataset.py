@@ -13,8 +13,8 @@ def get_class_mapping(dataset: DatasetVersion, class_mapping: Optional[Dict[str,
     classes_used = dataset.template.classes.keys()
     if class_mapping is not None:
         if set(class_mapping.keys()) != set(classes_used):
-            raise Exception(
-                "Invalid class mapping. Provided classes ",
+            print(
+                "[WARNING]: Potentially invalid class mapping. Provided classes ",
                 set(class_mapping.keys()),
                 " but needed ",
                 set(classes_used)

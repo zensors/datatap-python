@@ -1,25 +1,21 @@
-from .camera_metadata import CameraMetadata
-from .class_annotation import ClassAnnotation
-from .image import Image
-from .image_annotation import ImageAnnotation
-from .instance import Instance
-from .keypoint import Keypoint
-from .multi_instance import MultiInstance
-from .pride_image_annotation import PrideImageAnnotation
-from .pride_metadata import PrideMetadata
-from .video import Video
-from .video_annotation import VideoAnnotation
+from .class_annotation import ClassAnnotation, ClassAnnotationJson
+from .image import Image, ImageJson
+from .image_annotation import ImageAnnotation, ImageAnnotationJson
+from .instance import Instance, InstanceJson
+from .keypoint import Keypoint, KeypointJson
+from .multi_instance import MultiInstance, MultiInstanceJson
 
 __all__ = [
-	"CameraMetadata",
 	"ClassAnnotation",
+	"ClassAnnotationJson",
 	"Image",
+	"ImageJson",
 	"ImageAnnotation",
+	"ImageAnnotationJson",
 	"Instance",
+	"InstanceJson",
 	"Keypoint",
+	"KeypointJson",
 	"MultiInstance",
-	"PrideImageAnnotation",
-	"PrideMetadata",
-	"Video",
-	"VideoAnnotation",
+	"MultiInstanceJson",
 ]

@@ -3,7 +3,7 @@ from typing import List
 
 from mldl_public.utils import basic_repr
 
-from .dataset_reference import DatasetReference, Dataset
+from .dataset import DatasetVersion, Dataset
 from ..endpoints import ApiEndpoints
 from ..types import JsonDatabase, JsonDatabaseOptions
 
@@ -29,14 +29,14 @@ class Database:
         self.name = name
         self.connection_options = connection_options
 
-    def get_dataset_list(self) -> List[DatasetReference]:
+    def get_dataset_list(self) -> List[Dataset]:
         return [
-            DatasetReference.from_json(self._endpoints, dataset_json)
+            Dataset.from_json(self._endpoints, dataset_json)
             for dataset_json in self._endpoints.dataset.list(self.uid)
         ]
 
-    def get_dataset_by_uid(self, dataset_uid: str) -> Dataset:
-        return Dataset.from_json(
+    def get_dataset_by_uid(self, dataset_uid: str) -> DatasetVersion:
+        return DatasetVersion.from_json(
             self._endpoints,
             self._endpoints.dataset.query(self.uid, dataset_uid)
         )

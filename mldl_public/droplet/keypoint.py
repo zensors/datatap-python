@@ -1,10 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional
+from typing import Any, Optional
 
-from ..geometry import Point
+from typing_extensions import TypedDict
+
+from ..geometry import Point, PointJson
 from ..utils import basic_repr
 
+class _KeypointJsonOptional(TypedDict, total = False):
+	occluded: bool
+
+class KeypointJson(_KeypointJsonOptional, TypedDict):
+	point: PointJson
 
 class Keypoint:
 	point: Point
@@ -12,7 +19,7 @@ class Keypoint:
 	confidence: Optional[float]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]) -> Keypoint:
+	def from_json(json: KeypointJson) -> Keypoint:
 		return Keypoint(
 			Point.from_json(json["point"]),
 			occluded = json["occluded"],
@@ -33,3 +40,13 @@ class Keypoint:
 		if not isinstance(other, Keypoint):
 			return NotImplemented
 		return self.point == other.point and self.occluded == other.occluded and self.confidence == other.confidence
+
+	def to_json(self) -> KeypointJson:
+		json: KeypointJson = {
+			"point": self.point.to_json()
+		}
+
+		if self.occluded is not None:
+			json["occluded"] = self.occluded
+
+		return json

@@ -2,11 +2,19 @@ from __future__ import annotations
 
 from typing import Any, Dict, Mapping, Optional
 
-from ..geometry import Mask
-from ..utils import basic_repr
-from .class_annotation import ClassAnnotation
-from .image import Image
+from typing_extensions import TypedDict
 
+from ..geometry import Mask, MaskJson
+from ..utils import basic_repr
+from .class_annotation import ClassAnnotation, ClassAnnotationJson
+from .image import Image, ImageJson
+
+class _ImageAnnotationJsonOptional(TypedDict, total = False):
+	mask: MaskJson
+
+class ImageAnnotationJson(_ImageAnnotationJsonOptional, TypedDict):
+	image: ImageJson
+	classes: Mapping[str, ClassAnnotationJson]
 
 class ImageAnnotation:
 	image: Image
@@ -73,3 +81,17 @@ class ImageAnnotation:
 			classes = classes,
 			mask = self.mask
 		)
+
+	def to_json(self) -> ImageAnnotationJson:
+		json: ImageAnnotationJson = {
+			"image": self.image.to_json(),
+			"classes": {
+				name: class_annotation.to_json()
+				for name, class_annotation in self.classes.items()
+			}
+		}
+
+		if self.mask is not None:
+			json["mask"] = self.mask.to_json()
+
+		return json

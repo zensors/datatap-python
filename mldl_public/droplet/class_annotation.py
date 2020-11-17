@@ -1,18 +1,23 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Sequence
+
+from typing_extensions import TypedDict
 
 from ..utils import basic_repr
-from .instance import Instance
-from .multi_instance import MultiInstance
+from .instance import Instance, InstanceJson
+from .multi_instance import MultiInstance, MultiInstanceJson
 
+class ClassAnnotationJson(TypedDict, total = False):
+	instances: Sequence[InstanceJson]
+	multiInstances: Sequence[MultiInstanceJson]
 
 class ClassAnnotation:
 	instances: Sequence[Instance]
 	multi_instances: Sequence[MultiInstance]
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]) -> ClassAnnotation:
+	def from_json(json: ClassAnnotationJson) -> ClassAnnotation:
 		return ClassAnnotation(
 			instances = [Instance.from_json(instance) for instance in json["instances"]] if "instances" in json else [],
 			multi_instances = [MultiInstance.from_json(multi_instance) for multi_instance in json["multiInstances"]] if "multiInstances" in json else []
@@ -58,3 +63,9 @@ class ClassAnnotation:
 			instances = instances,
 			multi_instances = multi_instances,
 		)
+
+	def to_json(self) -> ClassAnnotationJson:
+		return {
+			"instances": [instance.to_json() for instance in self.instances],
+			"multiInstances": [multi_instance.to_json() for multi_instance in self.multi_instances]
+		}

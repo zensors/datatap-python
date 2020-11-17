@@ -1,10 +1,11 @@
-from typing import List, Dict, Any
+from typing import List, Optional
 from typing_extensions import TypedDict
 
+from .dataset_version import JsonDatasetVersion
+
 class JsonDataset(TypedDict):
-    name: str
-    uid: str
     database: str
-    splits: List[str]
-    template: Dict[str, Any] # needs to be decoded by the annotation template class
+    name: str
+    dataset: Optional[JsonDatasetVersion]
+    previousValues: List[str]
 

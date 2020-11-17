@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import Generator, List, overload
+from typing import List, Optional
+from mldl_public.utils import basic_repr, OrNullish
 
-from mldl_public.droplet import ImageAnnotation
-from mldl_public.template import ImageAnnotationTemplate
-from mldl_public.utils import basic_repr
-
+from .dataset_version import DatasetVersion
 from ..endpoints import ApiEndpoints
 from ..types import JsonDataset
 
@@ -13,39 +11,32 @@ class Dataset:
     _endpoints: ApiEndpoints
 
     name: str
-    uid: str
     database: str
-    splits: List[str]
-    template: ImageAnnotationTemplate
+    latest_version: Optional[DatasetVersion]
+    previous_values: List[str]
 
     @staticmethod
     def from_json(endpoints: ApiEndpoints, json: JsonDataset) -> Dataset:
         return Dataset(
             endpoints,
             name = json["name"],
-            uid = json["uid"],
             database = json["database"],
-            splits = json["splits"],
-            template = ImageAnnotationTemplate.from_json(json["template"])
+            latest_version = OrNullish.bind(json.get("dataset", None), lambda x: DatasetVersion.from_json(endpoints, x)),
+            previous_values = json["previousValues"]
         )
 
-    def __init__(self, endpoints: ApiEndpoints, uid: str, *, name: str, database: str, splits: List[str], template: ImageAnnotationTemplate):
+    def __init__(self, endpoints: ApiEndpoints, *, name: str, database: str, latest_version: Optional[DatasetVersion], previous_values: List[str]):
         self._endpoints = endpoints
         self.name = name
-        self.uid = uid
         self.database = database
-        self.splits = splits
-        self.template = template
+        self.latest_version = latest_version
+        self.previous_values = previous_values
 
-    @overload
-    def stream_split(self, split: str) -> Generator[ImageAnnotation, None, None]: ...
-    @overload
-    def stream_split(self, split: str, chunk: int, nchunks: int) -> Generator[ImageAnnotation, None, None]: ...
-    def stream_split(self, split: str, chunk: int = 0, nchunks: int = 1) -> Generator[ImageAnnotation, None, None]:
-        for droplet in self._endpoints.dataset.stream_split(self.database, self.uid, split, chunk, nchunks):
-            yield ImageAnnotation.from_json(droplet)
-
+    def get_previous_datasets(self) -> List[DatasetVersion]:
+        return [
+            DatasetVersion.from_json(self._endpoints, self._endpoints.dataset.query(self.database, dataset_uid))
+            for dataset_uid in self.previous_values
+        ]
 
     def __repr__(self) -> str:
-        return basic_repr("Dataset", self.uid, name = self.name, database = self.database, splits = self.splits)
-
+        return basic_repr("Dataset", name = self.name, database = self.database, previous_values = self.previous_values, latest_version = self.latest_version)

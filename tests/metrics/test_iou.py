@@ -5,11 +5,9 @@ from mldl_public.droplet import (BoundingBox, ClassAnnotation, Image,
                                  ImageAnnotation, Instance)
 from mldl_public.geometry import Point, Rectangle
 from mldl_public.metrics.confusion_matrix import ConfusionMatrix
-from mldl_public.metrics.iou import (add_annotation_to_confusion_matrix,
-                                     add_annotation_to_pr_curve,
-                                     generate_confusion_matrix,
+from mldl_public.metrics.iou import (generate_confusion_matrix,
                                      generate_pr_curve)
-from mldl_public.metrics.precision_recall_curve import (DetectionEvent,
+from mldl_public.metrics.precision_recall_curve import (_DetectionEvent as DetectionEvent,
                                                         PrecisionRecallCurve)
 from mldl_public.template import (ClassAnnotationTemplate,
                                   ImageAnnotationTemplate, InstanceTemplate)
@@ -96,7 +94,7 @@ pred2 = ImageAnnotation(
 class TestIou(unittest.TestCase):
 	def test_add_annotation_to_pr_curve_1(self):
 		pr = PrecisionRecallCurve()
-		add_annotation_to_pr_curve(precision_recall_curve = pr, ground_truth = gt1, prediction = pred1, iou_threshold = 0.3)
+		pr.add_annotation(ground_truth = gt1, prediction = pred1, iou_threshold = 0.3)
 		self.assertEqual(pr.events, {
 			0.2: DetectionEvent(0, 1),
 			0.6: DetectionEvent(2, -1),
@@ -106,7 +104,7 @@ class TestIou(unittest.TestCase):
 
 	def test_add_annotation_to_pr_curve_2(self):
 		pr = PrecisionRecallCurve()
-		add_annotation_to_pr_curve(precision_recall_curve = pr, ground_truth = gt2, prediction = pred2, iou_threshold = 0.3)
+		pr.add_annotation(ground_truth = gt2, prediction = pred2, iou_threshold = 0.3)
 		self.assertEqual(pr.events, {
 			0.3: DetectionEvent(0, 1),
 			0.6: DetectionEvent(0, 1),
@@ -126,8 +124,7 @@ class TestIou(unittest.TestCase):
 
 	def test_add_annotation_to_confusion_matrix_1a(self):
 		cm = ConfusionMatrix(sorted(tpl.classes.keys()))
-		add_annotation_to_confusion_matrix(
-			confusion_matrix = cm,
+		cm.add_annotation(
 			ground_truth = gt1,
 			prediction = pred1,
 			iou_threshold = 0.3,
@@ -146,8 +143,7 @@ class TestIou(unittest.TestCase):
 
 	def test_add_annotation_to_confusion_matrix_1b(self):
 		cm = ConfusionMatrix(sorted(tpl.classes.keys()))
-		add_annotation_to_confusion_matrix(
-			confusion_matrix = cm,
+		cm.add_annotation(
 			ground_truth = gt1,
 			prediction = pred1,
 			iou_threshold = 0.3,
@@ -166,8 +162,7 @@ class TestIou(unittest.TestCase):
 
 	def test_add_annotation_to_confusion_matrix_1c(self):
 		cm = ConfusionMatrix(sorted(tpl.classes.keys()))
-		add_annotation_to_confusion_matrix(
-			confusion_matrix = cm,
+		cm.add_annotation(
 			ground_truth = gt1,
 			prediction = pred1,
 			iou_threshold = 0.3,
@@ -186,8 +181,7 @@ class TestIou(unittest.TestCase):
 
 	def test_add_annotation_to_confusion_matrix_2(self):
 		cm = ConfusionMatrix(sorted(tpl.classes.keys()))
-		add_annotation_to_confusion_matrix(
-			confusion_matrix = cm,
+		cm.add_annotation(
 			ground_truth = gt2,
 			prediction = pred2,
 			iou_threshold = 0.3,

@@ -1,7 +1,9 @@
 import json
 import tempfile
 from os import path, makedirs
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, Generator, List, cast
+
+from mldl_public.droplet import ImageAnnotationJson
 
 from .request import ApiNamespace
 from ..types import JsonDatasetVersion, JsonDataset
@@ -9,13 +11,29 @@ from ..types import JsonDatasetVersion, JsonDataset
 process_directory = tempfile.mkdtemp(prefix="mldl-")
 
 class Dataset(ApiNamespace):
+    """
+    Raw API for interacting with dataset endpoints.
+    """
     def list(self, database_uid: str) -> List[JsonDataset]:
+        """
+        Returns a list of `JsonDataset`s in the database specified by `database_uid`.
+        """
         return self.get[List[JsonDataset]](f"/database/{database_uid}/dataset")
 
     def query(self, database_uid: str, dataset_uid: str) -> JsonDatasetVersion:
+        """
+        Queries a specific `JsonDatasetVersion` by its uid and its database's UID.
+        """
         return self.get[JsonDatasetVersion](f"/database/{database_uid}/dataset/{dataset_uid}")
 
-    def stream_split(self, database_uid: str, dataset_uid: str, split: str, chunk: int, nchunks: int) -> Generator[Dict[str, Any], None, None]:
+    def stream_split(self, database_uid: str, dataset_uid: str, split: str, chunk: int, nchunks: int) -> Generator[ImageAnnotationJson, None, None]:
+        """
+        Streams a split of a dataset. Required to stream are the `database_uid`, the `dataset_uid`, and the `split`.
+        Additionally, since this endpoint automatically shards the split, you must provide a chunk number (`chunk`)
+        and the total number of chunks in the shard (`nchunks`).
+
+        The result is a generator of `ImageAnnotationJson`s.
+        """
         if chunk < 0 or chunk >= nchunks:
             raise Exception(f"Invalid chunk specification. {chunk} must be in the range [0, {nchunks})")
 
@@ -41,4 +59,4 @@ class Dataset(ApiNamespace):
             for element in stream:
                 f.write(json.dumps(element))
                 f.write("\n")
-                yield element
+                yield cast(ImageAnnotationJson, element)

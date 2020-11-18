@@ -9,7 +9,7 @@ import tensorflow as tf
 
 from mldl_public.api.entities.dataset_version import DatasetVersion
 
-def get_class_mapping(dataset: DatasetVersion, class_mapping: Optional[Dict[str, int]] = None):
+def _get_class_mapping(dataset: DatasetVersion, class_mapping: Optional[Dict[str, int]] = None):
     classes_used = dataset.template.classes.keys()
     if class_mapping is not None:
         if set(class_mapping.keys()) != set(classes_used):
@@ -26,14 +26,24 @@ def get_class_mapping(dataset: DatasetVersion, class_mapping: Optional[Dict[str,
             for i, cls in enumerate(sorted(classes_used))
         }
 
-def create_tf_dataset(
+def create_dataset(
         version: DatasetVersion,
         split: str,
         input_class_mapping: Optional[Dict[str, int]] = None,
         num_workers: int = cpu_count() or 1,
         input_context: Optional[tf.distribute.InputContext] = None
 ):
-    class_mapping = get_class_mapping(version, input_class_mapping)
+    """
+    Creates a tensorflow `Dataset` object that will load a specified split of `version`.
+
+    This function handles the necessary `Dataset` operations to parallelize the loading
+    operation. Since image loading can be slow, it is recommended to have `num_workers`
+    set to a value greater than 1. By default, it will try to load one image per CPU.
+
+    If you intend to use the dataset across multiple processes or computers, consider
+    using `create_tf_multi_worker_dataset` instead.
+    """
+    class_mapping = _get_class_mapping(version, input_class_mapping)
 
     def gen():
         worker_id = input_context.input_pipeline_id if input_context is not None else 0
@@ -76,14 +86,23 @@ def create_tf_dataset(
     return ds.map(map_fn, num_parallel_calls=num_workers)
 
 
-def create_tf_multi_worker_dataset(
+def create_multi_worker_dataset(
     strategy: tf.distribute.experimental.Strategy,
     version: DatasetVersion,
     split: str,
     num_workers: int = cpu_count() or 1,
     input_class_mapping: Optional[Dict[str, int]] = None,
 ):
+    """
+    Creates a multi-worker sharded dataset. In addition to sharding the contents
+    of the dataset across multiple machines, this function will also attempt to
+    load the images across several workers.
+
+    If you are running multiple workers on the same physical machine, consider lowering
+    the value of `num_workers`, as by default each worker will try to use every CPU
+    on the machine.
+    """
     ds = strategy.experimental_distribute_datasets_from_function(
-        functools.partial(create_tf_dataset, version, split, num_workers, input_class_mapping)
+        functools.partial(create_dataset, version, split, num_workers, input_class_mapping)
     )
     return ds

@@ -6,9 +6,30 @@ from .database_endpoints import Database
 from .dataset_endpoints import Dataset
 
 class ApiEndpoints:
-    def __init__(self, api_key: Optional[str] = None, uri: Optional[str] = None):
-        self.request = Request(api_key, uri)
+    """
+    Class for performing raw API requests.
+    """
 
-        self.user = User(self.request)
-        self.database = Database(self.request)
-        self.dataset = Dataset(self.request)
+    user: User
+    """
+    User endpoints.
+    """
+
+    database: Database
+    """
+    Database endpoints.
+    """
+
+    dataset: Dataset
+    """
+    Dataset endpoints.
+    """
+
+    _request: Request
+
+    def __init__(self, api_key: Optional[str] = None, uri: Optional[str] = None):
+        self._request = Request(api_key, uri)
+
+        self.user = User(self._request)
+        self.database = Database(self._request)
+        self.dataset = Dataset(self._request)

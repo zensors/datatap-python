@@ -16,16 +16,39 @@ class _ImageAnnotationJsonOptional(TypedDict, total = False):
 	mask: MaskJson
 
 class ImageAnnotationJson(_ImageAnnotationJsonOptional, TypedDict):
+	"""
+	The serialized JSON representation of an image annotation.
+	"""
+
 	image: ImageJson
 	classes: Mapping[str, ClassAnnotationJson]
 
 class ImageAnnotation:
+	"""
+	A collection of class annotations that annotate a given image.
+	"""
+
 	image: Image
+	"""
+	The image being annotated.
+	"""
+
 	classes: Mapping[str, ClassAnnotation]
+	"""
+	A mapping from class name to the annotations of that class.
+	"""
+
 	mask: Optional[Mask]
+	"""
+	An optional region-of-interest mask to indicate that only
+	features within the mask have been annotated.
+	"""
 
 	@staticmethod
 	def from_json(json: Mapping[str, Any]) -> ImageAnnotation:
+		"""
+		Constructs an `ImageAnnotation` from an `ImageAnnotationJson`.
+		"""
 		return ImageAnnotation(
 			image = Image.from_json(json["image"]),
 			classes = {
@@ -46,6 +69,10 @@ class ImageAnnotation:
 		instance_filter: Callable[[Instance], bool],
 		multi_instance_filter: Callable[[MultiInstance], bool]
 	) -> ImageAnnotation:
+		"""
+		Returns a new image annotation consisting only of the instances and
+		multi-instances that meet the given constraints.
+		"""
 		return ImageAnnotation(
 			image = self.image,
 			mask = self.mask,
@@ -59,28 +86,40 @@ class ImageAnnotation:
 		)
 
 	def apply_bounding_box_confidence_threshold(self, threshold: float) -> ImageAnnotation:
-			return self.filter_detections(
-				instance_filter = lambda instance: (
-					instance.bounding_box is not None
-						and instance.bounding_box.meets_confidence_threshold(threshold)
-				),
-				multi_instance_filter = lambda multi_instance: (
-					multi_instance.bounding_box is not None
-						and multi_instance.bounding_box.meets_confidence_threshold(threshold)
-				)
+		"""
+		Returns a new image annotation consisting only of the instances and
+		multi-instances that have bounding boxes which either do not have a
+		confidence specified or which have a confience meeting the given
+		threshold.
+		"""
+		return self.filter_detections(
+			instance_filter = lambda instance: (
+				instance.bounding_box is not None
+					and instance.bounding_box.meets_confidence_threshold(threshold)
+			),
+			multi_instance_filter = lambda multi_instance: (
+				multi_instance.bounding_box is not None
+					and multi_instance.bounding_box.meets_confidence_threshold(threshold)
 			)
+		)
 
 	def apply_segmentation_confidence_threshold(self, threshold: float) -> ImageAnnotation:
-			return self.filter_detections(
-				instance_filter = lambda instance: (
-					instance.segmentation is not None
-						and instance.segmentation.meets_confidence_threshold(threshold)
-				),
-				multi_instance_filter = lambda multi_instance: (
-					multi_instance.segmentation is not None
-						and multi_instance.segmentation.meets_confidence_threshold(threshold)
-				)
+		"""
+		Returns a new image annotation consisting only of the instances and
+		multi-instances that have segmentations which either do not have a
+		confidence specified or which have a confience meeting the given
+		threshold.
+		"""
+		return self.filter_detections(
+			instance_filter = lambda instance: (
+				instance.segmentation is not None
+					and instance.segmentation.meets_confidence_threshold(threshold)
+			),
+			multi_instance_filter = lambda multi_instance: (
+				multi_instance.segmentation is not None
+					and multi_instance.segmentation.meets_confidence_threshold(threshold)
 			)
+		)
 
 	def __repr__(self) -> str:
 		return basic_repr(
@@ -117,6 +156,9 @@ class ImageAnnotation:
 		)
 
 	def to_json(self) -> ImageAnnotationJson:
+		"""
+		Serializes this image annotation into an `ImageAnnotationJson`.
+		"""
 		json: ImageAnnotationJson = {
 			"image": self.image.to_json(),
 			"classes": {

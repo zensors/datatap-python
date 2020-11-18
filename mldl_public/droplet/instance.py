@@ -11,19 +11,48 @@ from .segmentation import Segmentation, SegmentationJson
 
 
 class InstanceJson(TypedDict, total = False):
+	"""
+	The JSON serialization of an `Instance`.
+	"""
 	boundingBox: BoundingBoxJson
 	segmentation: SegmentationJson
 	keypoints: Mapping[str, Optional[KeypointJson]]
 	attributes: Mapping[str, str]
 
 class Instance:
+	"""
+	A single appearance of an object of a particular class within a given image.
+	"""
+
 	bounding_box: Optional[BoundingBox]
+	"""
+	The bounding box of this instance.
+	"""
+
 	segmentation: Optional[Segmentation]
+	"""
+	The segmentation of this instance.
+	"""
+
 	keypoints: Optional[Mapping[str, Optional[Keypoint]]]
+	"""
+	A mapping from keypoint name to the keypoint within this instance.  If a key
+	maps to `None`, then the annotation is reporting the _absence of_ that
+	keypoint (i.e., that it is not visible in the image and does not have an
+	inferrable position in the image).
+	"""
+
 	attributes: Optional[Mapping[str, str]]
+	"""
+	A mapping from attribute name to value.
+	"""
 
 	@staticmethod
 	def from_json(json: InstanceJson) -> Instance:
+		"""
+		Creates an `Instance` from an `InstanceJson`.
+		"""
+
 		return Instance(
 			bounding_box = BoundingBox.from_json(json["boundingBox"]) if "boundingBox" in json else None,
 			segmentation = Segmentation.from_json(json["segmentation"]) if "segmentation" in json else None,
@@ -63,6 +92,9 @@ class Instance:
 			and self.keypoints == other.keypoints and self.attributes == other.attributes)
 
 	def to_json(self) -> InstanceJson:
+		"""
+		Serializes an `Instance` into an `InstanceJson`.
+		"""
 		json: InstanceJson = {}
 
 		if self.bounding_box is not None:

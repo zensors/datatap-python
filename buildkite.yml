@@ -22,10 +22,9 @@ steps:
       - "cp -R . /test"
       - "cd /test"
       - "echo '--- Installing Packages'"
-      - "pip install -r requirements_torch.txt"
-      - "pip install -e '.[metrics,torch]'"
+      - "pip install -e '.[metrics]'"
       - "echo '+++ Running Tests'"
-      - "python -m unittest"
+      - "python -m unittest discover tests"
     plugins:
       - docker#v3.7.0:
           image: "python:3.8"

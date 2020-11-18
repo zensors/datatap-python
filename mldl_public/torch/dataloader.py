@@ -17,13 +17,13 @@ if TYPE_CHECKING:
     class DataLoader(TorchDataLoader[_T]):
         """
         This is an ambient redeclaration of the dataloader class that
-        has properly typed iter methods
+        has properly typed iter methods.
         """
         def __iter__(self) -> Generator[_T, None, None]: ...
 else:
     DataLoader = TorchDataLoader
 
-def batched_dataloader(
+def create_dataloader(
     version: DatasetVersion,
     split: str,
     batch_size: int = 1,
@@ -31,11 +31,19 @@ def batched_dataloader(
     *,
     image_transform: Callable[[PIL.Image.Image], _T] = TF.to_tensor,
     class_mapping: Optional[Dict[str, int]] = None,
-) -> DataLoader[DatasetBatch[_T]]:
+) -> DataLoader[DatasetBatch]:
+    """
+    Creates a PyTorch `Dataloader` that yields batches of annotations.
+
+    This `Dataloader` is using `mldl_public.torch.Dataset` under the hood, so
+    all of the same restrictions apply, most notably that the `image_transform`
+    function must ultimately return a `torch.Tensor` of dimensionality
+    `(..., H, W)`.
+    """
 
     dataset = IterableDataset(version, split, image_transform = image_transform, class_mapping = class_mapping)
     dataloader = cast(
-        DataLoader[DatasetBatch[_T]],
+        DataLoader[DatasetBatch],
         DataLoader(
             dataset,
             batch_size,

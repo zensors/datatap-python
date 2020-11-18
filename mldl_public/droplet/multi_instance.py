@@ -10,17 +10,43 @@ from .segmentation import Segmentation, SegmentationJson
 
 
 class MultiInstanceJson(TypedDict, total = False):
+	"""
+	The JSON serialization of a `MultiInstance`.
+	"""
 	boundingBox: BoundingBoxJson
 	segmentation: SegmentationJson
 	count: int
 
 class MultiInstance:
+	"""
+	An appearance of a group of objects of a particular class in a particular image.
+
+	There is not a strict definition as to when a group of instances should be categorized as a multi-instance.
+	As such, when constructing a dataset, it is best to ensure that all of the `DataSource`s agree on what
+	constitutes a `MultiInstance`. These are most often used in public datasets when the cost of annotating
+	every instance would be too high.
+	"""
+
 	bounding_box: Optional[BoundingBox]
+	"""
+	The bounding box of this multi-instance.
+	"""
+
 	segmentation: Optional[Segmentation]
+	"""
+	The segmentation of this multi-instance.
+	"""
+
 	count: Optional[int]
+	"""
+	A count of how many true instances are encapsulated in this multi-instance.
+	"""
 
 	@staticmethod
 	def from_json(json: MultiInstanceJson) -> MultiInstance:
+		"""
+		Creates a `MultiInstance` from a `MultiInstanceJson`.
+		"""
 		return MultiInstance(
 			bounding_box = BoundingBox.from_json(json["boundingBox"]) if "boundingBox" in json else None,
 			segmentation = Segmentation.from_json(json["segmentation"]) if "segmentation" in json else None,
@@ -52,6 +78,9 @@ class MultiInstance:
 		return self.bounding_box == other.bounding_box and self.segmentation == other.segmentation and self.count == other.count
 
 	def to_json(self) -> MultiInstanceJson:
+		"""
+		Serializes this object as a `MultiInstanceJson`.
+		"""
 		json: MultiInstanceJson = {}
 
 		if self.bounding_box is not None:

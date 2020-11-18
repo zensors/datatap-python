@@ -9,6 +9,7 @@ from ..utils import basic_repr
 
 class _KeypointJsonOptional(TypedDict, total = False):
 	occluded: bool
+	confidence: float
 
 class KeypointJson(_KeypointJsonOptional, TypedDict):
 	point: PointJson
@@ -22,11 +23,11 @@ class Keypoint:
 	def from_json(json: KeypointJson) -> Keypoint:
 		return Keypoint(
 			Point.from_json(json["point"]),
-			occluded = json["occluded"],
+			occluded = json.get("occluded"),
 			confidence = json.get("confidence")
 		)
 
-	def __init__(self, point: Point, *, occluded: Optional[bool], confidence: Optional[float] = None):
+	def __init__(self, point: Point, *, occluded: Optional[bool] = None, confidence: Optional[float] = None):
 		self.point = point
 		self.occluded = occluded
 		self.confidence = confidence
@@ -48,5 +49,8 @@ class Keypoint:
 
 		if self.occluded is not None:
 			json["occluded"] = self.occluded
+
+		if self.confidence is not None:
+			json["confidence"] = self.confidence
 
 		return json

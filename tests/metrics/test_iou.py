@@ -1,8 +1,8 @@
 import unittest
 
 import numpy as np
-from mldl_public.droplet import (ClassAnnotation, Image, ImageAnnotation,
-                                 Instance)
+from mldl_public.droplet import (BoundingBox, ClassAnnotation, Image,
+                                 ImageAnnotation, Instance)
 from mldl_public.geometry import Point, Rectangle
 from mldl_public.metrics.confusion_matrix import ConfusionMatrix
 from mldl_public.metrics.iou import (add_annotation_to_confusion_matrix,
@@ -11,11 +11,10 @@ from mldl_public.metrics.iou import (add_annotation_to_confusion_matrix,
                                      generate_pr_curve)
 from mldl_public.metrics.precision_recall_curve import (DetectionEvent,
                                                         PrecisionRecallCurve)
-from mldl_public.template import ClassAnnotationTemplate
-from mldl_public.template import ImageAnnotationTemplate as AnnotationTemplate
-from mldl_public.template import InstanceTemplate
+from mldl_public.template import (ClassAnnotationTemplate,
+                                  ImageAnnotationTemplate, InstanceTemplate)
 
-tpl = AnnotationTemplate(
+tpl = ImageAnnotationTemplate(
 	classes = {
 		"a": ClassAnnotationTemplate(
 			instances = InstanceTemplate(bounding_box = True)
@@ -33,13 +32,13 @@ gt1 = ImageAnnotation(
 	classes = {
 		"a": ClassAnnotation(
 			instances = [
-				Instance(bounding_box = Rectangle(Point(0.5, 0.5), Point(0.7, 0.7))),
-				Instance(bounding_box = Rectangle(Point(0.1, 0.1), Point(0.2, 0.2)))
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.5, 0.5), Point(0.7, 0.7)))),
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.1, 0.1), Point(0.2, 0.2))))
 			]
 		),
 		"b": ClassAnnotation(
 			instances = [
-				Instance(bounding_box = Rectangle(Point(0.6, 0.5), Point(0.7, 0.7)))
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.6, 0.5), Point(0.7, 0.7))))
 			]
 		)
 	}
@@ -50,14 +49,14 @@ pred1 = ImageAnnotation(
 	classes = {
 		"a": ClassAnnotation(
 			instances = [
-				Instance(confidence = 0.7, bounding_box = Rectangle(Point(0.58, 0.5), Point(0.7, 0.7))),
-				Instance(confidence = 0.9, bounding_box = Rectangle(Point(0.1, 0.1), Point(0.18, 0.19)))
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.58, 0.5), Point(0.7, 0.7)), confidence = 0.7)),
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.1, 0.1), Point(0.18, 0.19)), confidence = 0.9))
 			]
 		),
 		"b": ClassAnnotation(
 			instances = [
-				Instance(confidence = 0.6, bounding_box = Rectangle(Point(0.6, 0.5), Point(0.7, 0.7))),
-				Instance(confidence = 0.2, bounding_box = Rectangle(Point(0.1, 0.8), Point(0.2, 0.9)))
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.6, 0.5), Point(0.7, 0.7)), confidence = 0.6)),
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.1, 0.8), Point(0.2, 0.9)), confidence = 0.2))
 			]
 		)
 	}
@@ -68,7 +67,7 @@ gt2 = ImageAnnotation(
 	classes = {
 		"a": ClassAnnotation(
 			instances = [
-				Instance(bounding_box = Rectangle(Point(0.1, 0.1), Point(0.4, 0.4))),
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.1, 0.1), Point(0.4, 0.4)))),
 			]
 		),
 		"b": ClassAnnotation(
@@ -82,13 +81,13 @@ pred2 = ImageAnnotation(
 	classes = {
 		"a": ClassAnnotation(
 			instances = [
-				Instance(confidence = 0.8, bounding_box = Rectangle(Point(0.1, 0.12), Point(0.37, 0.4))),
-				Instance(confidence = 0.6, bounding_box = Rectangle(Point(0.09, 0.08), Point(0.39, 0.4)))
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.1, 0.12), Point(0.37, 0.4)), confidence = 0.8)),
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.09, 0.08), Point(0.39, 0.4)), confidence = 0.6))
 			]
 		),
 		"b": ClassAnnotation(
 			instances = [
-				Instance(confidence = 0.3, bounding_box = Rectangle(Point(0.6, 0), Point(0.8, 0.2)))
+				Instance(bounding_box = BoundingBox(Rectangle(Point(0.6, 0), Point(0.8, 0.2)), confidence = 0.3))
 			]
 		)
 	}

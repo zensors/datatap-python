@@ -68,15 +68,17 @@ def add_annotation_to_pr_curve(
 	Note: this handles instances only; multi-instances are ignored.
 	"""
 	ground_truth_boxes = [
-		GroundTruthBox(class_name, instance.bounding_box)
+		GroundTruthBox(class_name, instance.bounding_box.rectangle)
 		for class_name in ground_truth.classes.keys()
 		for instance in ground_truth.classes[class_name].instances
+		if instance.bounding_box is not None
 	]
 
 	prediction_boxes = sorted([
-		PredictionBox(instance.confidence or 0, class_name, instance.bounding_box)
+		PredictionBox(instance.bounding_box.confidence or 1, class_name, instance.bounding_box.rectangle)
 		for class_name in prediction.classes.keys()
 		for instance in prediction.classes[class_name].instances
+		if instance.bounding_box is not None
 	], reverse = True, key = lambda p: p.confidence)
 
 	iou_matrix = np.array([
@@ -132,16 +134,17 @@ def add_annotation_to_confusion_matrix(
 	Note: this handles instances only; multi-instances are ignored.
 	"""
 	ground_truth_boxes = [
-		GroundTruthBox(class_name, instance.bounding_box)
+		GroundTruthBox(class_name, instance.bounding_box.rectangle)
 		for class_name in ground_truth.classes.keys()
 		for instance in ground_truth.classes[class_name].instances
+		if instance.bounding_box is not None
 	]
 
 	prediction_boxes = sorted([
-		PredictionBox(instance.confidence or 0, class_name, instance.bounding_box)
+		PredictionBox(instance.bounding_box.confidence or 1, class_name, instance.bounding_box.rectangle)
 		for class_name in prediction.classes.keys()
 		for instance in prediction.classes[class_name].instances
-		if instance.confidence is not None and instance.confidence >= confidence_threshold
+		if instance.bounding_box is not None and instance.bounding_box.meets_confidence_threshold(confidence_threshold)
 	], reverse = True, key = lambda p: p.confidence)
 
 	iou_matrix = np.array([

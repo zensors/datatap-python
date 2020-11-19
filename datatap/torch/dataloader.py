@@ -44,7 +44,6 @@ def create_dataloader(
     """
     if torch.multiprocessing.get_start_method(allow_none = True) is None:
         torch.multiprocessing.set_start_method("spawn")
-    print(torch.multiprocessing.get_start_method())
 
     torch_dataset = IterableDataset(dataset, split, image_transform = image_transform, class_mapping = class_mapping, device = device)
     dataloader = cast(

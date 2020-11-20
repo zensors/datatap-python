@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Sequence, Tuple, Union, overload
+from typing import Any, Generator, Sequence, Tuple, Union, overload
 
 from .point import Point, PointJson
 from ..utils import basic_repr
@@ -46,3 +46,6 @@ class Polygon:
 	def __mul__(self, o: float) -> Polygon: ...
 	def __mul__(self, o: Any) -> Polygon:
 		return Polygon([p * o for p in self.points])
+
+	def __iter__(self) -> Generator[Point, None, None]:
+		yield from self.points

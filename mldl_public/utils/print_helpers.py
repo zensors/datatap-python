@@ -23,6 +23,11 @@ ansi = {
 }
 
 IS_INTERACTIVE = sys.stdout.isatty()
+pretty_print: bool = False
+
+def force_pretty_print():
+	global pretty_print
+	pretty_print = True
 
 def color_repr(entity: Any) -> str:
 	if entity is None:
@@ -51,7 +56,7 @@ def color_repr(entity: Any) -> str:
 	return repr(entity)
 
 def basic_repr(class_name: str, *args: Any, **kwargs: Any) -> str:
-	if not IS_INTERACTIVE:
+	if not IS_INTERACTIVE and not pretty_print:
 		positional_properties = [repr(value) for value in args]
 		named_properties = [f"{key} = {repr(value)}" for key, value in kwargs.items() if value is not None]
 		properties = ", ".join(positional_properties + named_properties)

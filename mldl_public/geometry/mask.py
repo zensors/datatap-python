@@ -1,6 +1,7 @@
 from __future__ import annotations
+from mldl_public.geometry.point import Point
 
-from typing import Any, Sequence
+from typing import Any, Generator, List, Sequence, Tuple, Union
 
 from .polygon import Polygon, PolygonJson
 from ..utils import basic_repr
@@ -20,6 +21,9 @@ class Mask:
 		if len(self.polygons) < 1:
 			raise ValueError(f"A mask must have at least one polygon; failed on mask {repr(self)}")
 
+	def scale(self, factor: Union[float, int, Tuple[float, float], Point]) -> Mask:
+		return Mask([p.scale(factor) for p in self.polygons])
+
 	def to_json(self) -> MaskJson:
 		return [polygon.to_json() for polygon in self.polygons]
 
@@ -36,3 +40,6 @@ class Mask:
 		if not isinstance(other, Mask):
 			return NotImplemented
 		return self.polygons == other.polygons
+
+	def __iter__(self) -> Generator[Polygon, None, None]:
+		yield from self.polygons

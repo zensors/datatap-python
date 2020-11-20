@@ -65,8 +65,8 @@ class IterableDataset(TorchIterableDataset[DatasetElement[_T]]):
         template_classes = dataset.template.classes.keys()
         if class_mapping is not None:
             if set(class_mapping.keys()) != set(template_classes):
-                raise Exception(
-                    "Invalid class mapping. Provided classes ",
+                print(
+                    "[WARNING]: Potentially invalid class mapping. Provided classes ",
                     set(class_mapping.keys()),
                     " but needed ",
                     set(template_classes)
@@ -96,7 +96,6 @@ class IterableDataset(TorchIterableDataset[DatasetElement[_T]]):
 
     def __iter__(self) -> Generator[DatasetElement[_T], None, None]:
         for annotation in self._get_generator():
-            print(annotation.image)
             img = annotation.image.get_pil_image(True).convert("RGB")
             w, h = img.size
 

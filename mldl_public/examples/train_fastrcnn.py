@@ -1,23 +1,25 @@
-# torchvision dependencies
-import torch
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
-# mldl dependencies
-from mldl_public.dataset.dataset import Dataset, set_neo4j_url
-import mldl.utils.torchvision
+from mldl_public.api.entities import Api
+from mldl_public.torch.dataloader import batched_dataloader
 
-# We load the MLDL dataset and transform it into what torchvision models understands
+# If [MLDL_API_KEY] is not in your environment, then pass it as the first argument
+api = Api()
 
-# load the dataset, change it to your own uid.
-dataset = Dataset.load("f10a05e0-8aaf-4065-9864-a9bf77fb7849", 1000)
+db_list = api.get_database_list()
+db = db_list[0]
+ds_list = db.get_dataset_list()
+ds = ds_list[0]
+if ds.latest_version is None:
+    raise Exception()
 
-classes = list(dataset.validation.take(1)[0].classes.keys())
-num_classes = len(classes) + 1 # 0 is the background
-class_to_id_map = { c: i+1 for i, c in enumerate(classes) }
+classes = ["__background__"] + sorted(ds.latest_version.template.classes.keys())
+num_classes = len(classes)
+class_map = { cls: i for i, cls in enumerate(classes) }
 
-# this loads the dataset into a torchvision compatible format, and streams data in the background
-torch_dataset = mldl.utils.torchvision.load_bag(dataset.validation, class_to_id_map)
+loader = batched_dataloader(ds.latest_version, "training", class_mapping = class_map)
+
 
 # We are going to start from a model pretrained on COCO, and modify it to use our classes
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
@@ -29,9 +31,11 @@ model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 # the dataset
 model.train()
 
-to_tensor = torchvision.transforms.ToTensor()
 for epoch in range(10):
-    for image, target in torch_dataset:
-        image = to_tensor(image)
-        model([image], [target])
+    for batch in loader:
+        model(batch.images, [
+            { "boxes": boxes, "labels": labels }
+            for boxes, labels in zip(batch.boxes, batch.labels)
+        ])
+    print(f"Finished epoch {epoch}")
 

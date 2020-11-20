@@ -4,56 +4,48 @@ from typing import Any, Dict, Mapping, Optional
 
 from typing_extensions import TypedDict
 
-from .keypoint import Keypoint, KeypointJson
-from ..geometry import Mask, MaskJson, Rectangle, RectangleJson
 from ..utils import basic_repr
+from .bounding_box import BoundingBox, BoundingBoxJson
+from .keypoint import Keypoint, KeypointJson
+from .segmentation import Segmentation, SegmentationJson
 
-class _InstanceJsonOptional(TypedDict, total = False):
-	segmentation: MaskJson
+
+class InstanceJson(TypedDict, total = False):
+	boundingBox: BoundingBoxJson
+	segmentation: SegmentationJson
 	keypoints: Mapping[str, Optional[KeypointJson]]
 	attributes: Mapping[str, str]
-	confidence: float
-
-class InstanceJson(_InstanceJsonOptional, TypedDict):
-	boundingBox: RectangleJson
 
 class Instance:
-	bounding_box: Rectangle
-	segmentation: Optional[Mask]
+	bounding_box: Optional[BoundingBox]
+	segmentation: Optional[Segmentation]
 	keypoints: Optional[Mapping[str, Optional[Keypoint]]]
 	attributes: Optional[Mapping[str, str]]
-	confidence: Optional[float] # TODO: should confidence be here or on the geometric pieces (i.e. bounding_box, segmentation)?
 
 	@staticmethod
 	def from_json(json: InstanceJson) -> Instance:
 		return Instance(
-			bounding_box = Rectangle.from_json(json["boundingBox"]),
-			segmentation = Mask.from_json(json["segmentation"]) if "segmentation" in json else None,
+			bounding_box = BoundingBox.from_json(json["boundingBox"]) if "boundingBox" in json else None,
+			segmentation = Segmentation.from_json(json["segmentation"]) if "segmentation" in json else None,
 			keypoints = {
 				name: Keypoint.from_json(keypoint) if keypoint is not None else None
 				for name, keypoint in json["keypoints"].items()
 			} if "keypoints" in json else None,
-			attributes = json.get("attributes"),
-			confidence = json.get("confidence")
+			attributes = json.get("attributes")
 		)
 
 	def __init__(
 		self,
 		*,
-		bounding_box: Rectangle,
-		segmentation: Optional[Mask] = None,
+		bounding_box: Optional[BoundingBox] = None,
+		segmentation: Optional[Segmentation] = None,
 		keypoints: Optional[Mapping[str, Optional[Keypoint]]] = None,
-		attributes: Optional[Mapping[str, str]] = None,
-		confidence: Optional[float] = None
+		attributes: Optional[Mapping[str, str]] = None
 	):
 		self.bounding_box = bounding_box
 		self.segmentation = segmentation
 		self.keypoints = keypoints
 		self.attributes = attributes
-		self.confidence = confidence
-
-		self.bounding_box.assert_valid()
-		if self.segmentation is not None: self.segmentation.assert_valid()
 
 	def __repr__(self) -> str:
 		return basic_repr(
@@ -61,21 +53,20 @@ class Instance:
 			bounding_box = self.bounding_box,
 			segmentation = self.segmentation,
 			keypoints = self.keypoints,
-			attributes = self.attributes,
-			confidence = self.confidence
+			attributes = self.attributes
 		)
 
 	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, Instance):
 			return NotImplemented
 		return (self.bounding_box == other.bounding_box and self.segmentation == other.segmentation
-			and self.keypoints == other.keypoints and self.attributes == other.attributes
-			and self.confidence == other.confidence)
+			and self.keypoints == other.keypoints and self.attributes == other.attributes)
 
 	def to_json(self) -> InstanceJson:
-		json: InstanceJson = {
-			"boundingBox": self.bounding_box.to_json()
-		}
+		json: InstanceJson = {}
+
+		if self.bounding_box is not None:
+			json["boundingBox"] = self.bounding_box.to_json()
 
 		if self.segmentation is not None:
 			json["segmentation"] = self.segmentation.to_json()
@@ -90,8 +81,5 @@ class Instance:
 
 		if self.attributes is not None:
 			json["attributes"] = self.attributes
-
-		if self.confidence is not None:
-			json["confidence"] = self.confidence
 
 		return json

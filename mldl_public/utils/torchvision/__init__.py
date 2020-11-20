@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from PIL.Image import Image
-from mldl_public.geometry import Rectangle
-from typing import Dict, Iterator, Mapping, Tuple, Callable
+from typing import Callable, Dict, Iterator, Mapping, Tuple
 
 import torch
 from mldl_public.droplet import ImageAnnotation
-from mldl_public.utils.dask import BagIterator, Bag
+from mldl_public.utils.dask import Bag, BagIterator
+from PIL.Image import Image
+
 
 def load_one(a: ImageAnnotation, id_map: Mapping[str, int]) -> Tuple[Image, Dict[str, torch.Tensor]]:
 	image = a.image.get_pil_image().convert("RGB")
@@ -17,15 +17,17 @@ def load_one(a: ImageAnnotation, id_map: Mapping[str, int]) -> Tuple[Image, Dict
 
 	for k, v in a.classes.items():
 		for instance in v.instances:
-			labels.append(id_map[k])
-			bbox: Rectangle = instance.bounding_box
-			boxes.append(bbox.normalize().scale((w, h)).to_xyxy_tuple())
-			iscrowd.append(0)
-		for instance in v.multi_instances:
-			labels.append(id_map[k])
-			bbox: Rectangle = instance.bounding_box
-			boxes.append(bbox.normalize().scale((w, h)).to_xyxy_tuple())
-			iscrowd.append(1)
+			if instance.bounding_box is not None:
+				labels.append(id_map[k])
+				boxes.append(instance.bounding_box.rectangle.normalize().scale((w, h)).to_xyxy_tuple())
+				iscrowd.append(0)
+
+		for multi_instance in v.multi_instances:
+			if multi_instance.bounding_box is not None:
+				labels.append(id_map[k])
+				boxes.append(multi_instance.bounding_box.rectangle.normalize().scale((w, h)).to_xyxy_tuple())
+				iscrowd.append(1)
+
 	target = {
 		"boxes": torch.as_tensor(boxes, dtype=torch.float32),
 		"labels": torch.as_tensor(labels, dtype=torch.int64),

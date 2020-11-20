@@ -1,4 +1,3 @@
-import random
 import json
 import tempfile
 from os import path, makedirs

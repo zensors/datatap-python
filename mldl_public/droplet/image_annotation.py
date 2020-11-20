@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Callable, Dict, Mapping, Optional
 
 from typing_extensions import TypedDict
 
@@ -8,6 +8,9 @@ from ..geometry import Mask, MaskJson
 from ..utils import basic_repr
 from .class_annotation import ClassAnnotation, ClassAnnotationJson
 from .image import Image, ImageJson
+from .instance import Instance
+from .multi_instance import MultiInstance
+
 
 class _ImageAnnotationJsonOptional(TypedDict, total = False):
 	mask: MaskJson
@@ -37,16 +40,47 @@ class ImageAnnotation:
 		self.classes = classes
 		self.mask = mask
 
-	def apply_confidence_threshold(self, threshold: float) -> ImageAnnotation:
-		classes: Mapping[str, ClassAnnotation] = {}
-		for class_name, class_annotation in self.classes.items():
-			classes[class_name] = class_annotation.apply_confidence_threshold(threshold)
-
+	def filter_detections(
+		self,
+		*,
+		instance_filter: Callable[[Instance], bool],
+		multi_instance_filter: Callable[[MultiInstance], bool]
+	) -> ImageAnnotation:
 		return ImageAnnotation(
 			image = self.image,
-			classes = classes,
 			mask = self.mask,
+			classes = {
+				class_name: class_annotation.filter_detections(
+					instance_filter = instance_filter,
+					multi_instance_filter = multi_instance_filter
+				)
+				for class_name, class_annotation in self.classes.items()
+			}
 		)
+
+	def apply_bounding_box_confidence_threshold(self, threshold: float) -> ImageAnnotation:
+			return self.filter_detections(
+				instance_filter = lambda instance: (
+					instance.bounding_box is not None
+						and instance.bounding_box.meets_confidence_threshold(threshold)
+				),
+				multi_instance_filter = lambda multi_instance: (
+					multi_instance.bounding_box is not None
+						and multi_instance.bounding_box.meets_confidence_threshold(threshold)
+				)
+			)
+
+	def apply_segmentation_confidence_threshold(self, threshold: float) -> ImageAnnotation:
+			return self.filter_detections(
+				instance_filter = lambda instance: (
+					instance.segmentation is not None
+						and instance.segmentation.meets_confidence_threshold(threshold)
+				),
+				multi_instance_filter = lambda multi_instance: (
+					multi_instance.segmentation is not None
+						and multi_instance.segmentation.meets_confidence_threshold(threshold)
+				)
+			)
 
 	def __repr__(self) -> str:
 		return basic_repr(

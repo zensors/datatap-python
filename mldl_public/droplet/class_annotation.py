@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 from typing_extensions import TypedDict
 
@@ -27,22 +27,24 @@ class ClassAnnotation:
 		self.instances = instances
 		self.multi_instances = multi_instances
 
-	def apply_confidence_threshold(self, threshold: float) -> ClassAnnotation:
+	def filter_detections(
+		self,
+		*,
+		instance_filter: Callable[[Instance], bool],
+		multi_instance_filter: Callable[[MultiInstance], bool]
+	) -> ClassAnnotation:
+		return ClassAnnotation(
 			instances = [
 				instance
 				for instance in self.instances
-				if instance.confidence is None or instance.confidence >= threshold
-			]
+				if instance_filter(instance)
+			],
 			multi_instances = [
 				multi_instance
 				for multi_instance in self.multi_instances
-				if multi_instance.confidence is None or multi_instance.confidence >= threshold
+				if multi_instance_filter(multi_instance)
 			]
-
-			return ClassAnnotation(
-				instances = instances,
-				multi_instances = multi_instances,
-			)
+		)
 
 	def __repr__(self) -> str:
 		return basic_repr("ClassAnnotation", instances = self.instances, multi_instances = self.multi_instances)

@@ -6,15 +6,37 @@ from ..endpoints import ApiEndpoints
 from ..types import JsonUser
 
 class User:
+    """
+    Represents a user account in the mldl platform.
+    """
+
     _endpoints: ApiEndpoints
 
     uid: str
+    """
+    The user's UID.
+    """
+
     first_name: str
+    """
+    The user's first name.
+    """
+
     last_name: str
+    """
+    The user's last name.
+    """
+
     email: str
+    """
+    The user's email address.
+    """
 
     @staticmethod
     def from_json(endpoints: ApiEndpoints, json: JsonUser) -> User:
+        """
+        Creates a `User` from a `JsonUser`.
+        """
         return User(
             endpoints,
             json["uid"],

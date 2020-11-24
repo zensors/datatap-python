@@ -20,7 +20,7 @@ for path in glob.glob("requirements_*.txt"):
 
 setuptools.setup(
     name="mldl-public",
-    version="1.0.3",
+    version="1.0.4",
     author="Zensors' Dev Team",
     author_email="dev-team@zensors.com",
     description="Client library for the Zensors MLDL Product",

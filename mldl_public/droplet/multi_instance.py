@@ -1,77 +1,95 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional
+from typing import Any, Optional
 
 from typing_extensions import TypedDict
 
-from ..geometry import Mask, MaskJson, Rectangle, RectangleJson
 from ..utils import basic_repr
+from .bounding_box import BoundingBox, BoundingBoxJson
+from .segmentation import Segmentation, SegmentationJson
 
-class _MultiInstanceJsonOptional(TypedDict, total = False):
-	segmentation: MaskJson
+
+class MultiInstanceJson(TypedDict, total = False):
+	"""
+	The JSON serialization of a `MultiInstance`.
+	"""
+	boundingBox: BoundingBoxJson
+	segmentation: SegmentationJson
 	count: int
-	confidence: float
-
-class MultiInstanceJson(_MultiInstanceJsonOptional, TypedDict):
-	boundingBox: RectangleJson
 
 class MultiInstance:
-	bounding_box: Rectangle
-	segmentation: Optional[Mask]
+	"""
+	An appearance of a group of objects of a particular class in a particular image.
+
+	There is not a strict definition as to when a group of instances should be categorized as a multi-instance.
+	As such, when constructing a dataset, it is best to ensure that all of the `DataSource`s agree on what
+	constitutes a `MultiInstance`. These are most often used in public datasets when the cost of annotating
+	every instance would be too high.
+	"""
+
+	bounding_box: Optional[BoundingBox]
+	"""
+	The bounding box of this multi-instance.
+	"""
+
+	segmentation: Optional[Segmentation]
+	"""
+	The segmentation of this multi-instance.
+	"""
+
 	count: Optional[int]
-	confidence: Optional[float] # TODO: should confidence be here or on the geometric pieces (i.e. bounding_box, segmentation)?
+	"""
+	A count of how many true instances are encapsulated in this multi-instance.
+	"""
 
 	@staticmethod
-	def from_json(json: Mapping[str, Any]) -> MultiInstance:
+	def from_json(json: MultiInstanceJson) -> MultiInstance:
+		"""
+		Creates a `MultiInstance` from a `MultiInstanceJson`.
+		"""
 		return MultiInstance(
-			bounding_box = Rectangle.from_json(json["boundingBox"]),
-			segmentation = Mask.from_json(json["segmentation"]) if "segmentation" in json else None,
-			count = json.get("count"),
-			confidence = json.get("confidence")
+			bounding_box = BoundingBox.from_json(json["boundingBox"]) if "boundingBox" in json else None,
+			segmentation = Segmentation.from_json(json["segmentation"]) if "segmentation" in json else None,
+			count = json.get("count")
 		)
 
 	def __init__(
 		self,
 		*,
-		bounding_box: Rectangle,
-		segmentation: Optional[Mask] = None,
-		count: Optional[int] = None,
-		confidence: Optional[float] = None
+		bounding_box: Optional[BoundingBox] = None,
+		segmentation: Optional[Segmentation] = None,
+		count: Optional[int] = None
 	):
 		self.bounding_box = bounding_box
 		self.segmentation = segmentation
 		self.count = count
-		self.confidence = confidence
-
-		self.bounding_box.assert_valid()
-		if self.segmentation is not None: self.segmentation.assert_valid()
 
 	def __repr__(self) -> str:
 		return basic_repr(
 			"MultiInstance",
 			bounding_box = self.bounding_box,
 			segmentation = self.segmentation,
-			count = self.count,
-			confidence = self.confidence
+			count = self.count
 		)
 
 	def __eq__(self, other: Any) -> bool:
 		if not isinstance(other, MultiInstance):
 			return NotImplemented
-		return self.bounding_box == other.bounding_box and self.segmentation == other.segmentation and self.count == other.count and self.confidence == other.confidence
+		return self.bounding_box == other.bounding_box and self.segmentation == other.segmentation and self.count == other.count
 
 	def to_json(self) -> MultiInstanceJson:
-		json: MultiInstanceJson = {
-			"boundingBox": self.bounding_box.to_json()
-		}
+		"""
+		Serializes this object as a `MultiInstanceJson`.
+		"""
+		json: MultiInstanceJson = {}
+
+		if self.bounding_box is not None:
+			json["boundingBox"] = self.bounding_box.to_json()
 
 		if self.segmentation is not None:
 			json["segmentation"] = self.segmentation.to_json()
 
 		if self.count is not None:
 			json["count"] = self.count
-
-		if self.confidence is not None:
-			json["confidence"] = self.confidence
 
 		return json

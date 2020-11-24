@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Callable, Dict, Mapping, Optional
 
 from typing_extensions import TypedDict
 
@@ -8,21 +8,47 @@ from ..geometry import Mask, MaskJson
 from ..utils import basic_repr
 from .class_annotation import ClassAnnotation, ClassAnnotationJson
 from .image import Image, ImageJson
+from .instance import Instance
+from .multi_instance import MultiInstance
+
 
 class _ImageAnnotationJsonOptional(TypedDict, total = False):
 	mask: MaskJson
 
 class ImageAnnotationJson(_ImageAnnotationJsonOptional, TypedDict):
+	"""
+	The serialized JSON representation of an image annotation.
+	"""
+
 	image: ImageJson
 	classes: Mapping[str, ClassAnnotationJson]
 
 class ImageAnnotation:
+	"""
+	A collection of class annotations that annotate a given image.
+	"""
+
 	image: Image
+	"""
+	The image being annotated.
+	"""
+
 	classes: Mapping[str, ClassAnnotation]
+	"""
+	A mapping from class name to the annotations of that class.
+	"""
+
 	mask: Optional[Mask]
+	"""
+	An optional region-of-interest mask to indicate that only
+	features within the mask have been annotated.
+	"""
 
 	@staticmethod
 	def from_json(json: Mapping[str, Any]) -> ImageAnnotation:
+		"""
+		Constructs an `ImageAnnotation` from an `ImageAnnotationJson`.
+		"""
 		return ImageAnnotation(
 			image = Image.from_json(json["image"]),
 			classes = {
@@ -37,15 +63,62 @@ class ImageAnnotation:
 		self.classes = classes
 		self.mask = mask
 
-	def apply_confidence_threshold(self, threshold: float) -> ImageAnnotation:
-		classes: Mapping[str, ClassAnnotation] = {}
-		for class_name, class_annotation in self.classes.items():
-			classes[class_name] = class_annotation.apply_confidence_threshold(threshold)
-
+	def filter_detections(
+		self,
+		*,
+		instance_filter: Callable[[Instance], bool],
+		multi_instance_filter: Callable[[MultiInstance], bool]
+	) -> ImageAnnotation:
+		"""
+		Returns a new image annotation consisting only of the instances and
+		multi-instances that meet the given constraints.
+		"""
 		return ImageAnnotation(
 			image = self.image,
-			classes = classes,
 			mask = self.mask,
+			classes = {
+				class_name: class_annotation.filter_detections(
+					instance_filter = instance_filter,
+					multi_instance_filter = multi_instance_filter
+				)
+				for class_name, class_annotation in self.classes.items()
+			}
+		)
+
+	def apply_bounding_box_confidence_threshold(self, threshold: float) -> ImageAnnotation:
+		"""
+		Returns a new image annotation consisting only of the instances and
+		multi-instances that have bounding boxes which either do not have a
+		confidence specified or which have a confience meeting the given
+		threshold.
+		"""
+		return self.filter_detections(
+			instance_filter = lambda instance: (
+				instance.bounding_box is not None
+					and instance.bounding_box.meets_confidence_threshold(threshold)
+			),
+			multi_instance_filter = lambda multi_instance: (
+				multi_instance.bounding_box is not None
+					and multi_instance.bounding_box.meets_confidence_threshold(threshold)
+			)
+		)
+
+	def apply_segmentation_confidence_threshold(self, threshold: float) -> ImageAnnotation:
+		"""
+		Returns a new image annotation consisting only of the instances and
+		multi-instances that have segmentations which either do not have a
+		confidence specified or which have a confience meeting the given
+		threshold.
+		"""
+		return self.filter_detections(
+			instance_filter = lambda instance: (
+				instance.segmentation is not None
+					and instance.segmentation.meets_confidence_threshold(threshold)
+			),
+			multi_instance_filter = lambda multi_instance: (
+				multi_instance.segmentation is not None
+					and multi_instance.segmentation.meets_confidence_threshold(threshold)
+			)
 		)
 
 	def __repr__(self) -> str:
@@ -83,6 +156,9 @@ class ImageAnnotation:
 		)
 
 	def to_json(self) -> ImageAnnotationJson:
+		"""
+		Serializes this image annotation into an `ImageAnnotationJson`.
+		"""
 		json: ImageAnnotationJson = {
 			"image": self.image.to_json(),
 			"classes": {

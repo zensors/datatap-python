@@ -15,6 +15,9 @@ _T = TypeVar("_T")
 _S = TypeVar("_S")
 
 class GetRequester(Generic[_T]):
+    """
+    A callable-class for performing typed `GET` requests to the API.
+    """
     api_key: str
     uri: str
 
@@ -48,6 +51,9 @@ class GetRequester(Generic[_T]):
         return response.json()
 
 class StreamRequester(Generic[_T]):
+    """
+    A callable-class for performing typed stream requests to the API.
+    """
     api_key: str
     uri: str
 
@@ -84,6 +90,24 @@ class StreamRequester(Generic[_T]):
 
 
 class Request:
+    """
+    A helper class that encapsulates the logic for making requests to the
+    MLDL server. It is passed an optional `api_key`, which defaults to
+    the `MLDL_API_KEY` environment variable. It can also be passed a base
+    `uri` for connecting to a different MLDL server (such as through a
+    proxy).
+    """
+
+    get: GetRequester[Any]
+    """
+    Function for typesafe `GET` requests.
+    """
+
+    stream: StreamRequester[Any]
+    """
+    Function for typesafe streaming requests.
+    """
+
     def __init__(self, api_key: Optional[str] = None, uri: Optional[str] = None):
         api_key = api_key or os.getenv("MLDL_API_KEY")
         uri = uri or DEFAULT_API_URI
@@ -94,6 +118,9 @@ class Request:
         self.stream = StreamRequester[Any](api_key, uri)
 
 class ApiNamespace:
+    """
+    Base class for API endpoints.
+    """
     def __init__(self, request: Request):
         self.request = request
         self.get = request.get

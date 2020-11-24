@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 from typing_extensions import TypedDict
 
@@ -8,16 +8,38 @@ from ..utils import basic_repr
 from .instance import Instance, InstanceJson
 from .multi_instance import MultiInstance, MultiInstanceJson
 
+__pdoc__ = { "ClassAnnotation.__add__": True }
+
 class ClassAnnotationJson(TypedDict, total = False):
+	"""
+	The serialized JSON representation of a class annotation.
+	"""
 	instances: Sequence[InstanceJson]
 	multiInstances: Sequence[MultiInstanceJson]
 
 class ClassAnnotation:
+	"""
+	A `ClassAnnotation` represents the set of detections for a given
+	class. These may either be individual instances, or "multi instances"
+	that describe a visual clustering of the class.
+	"""
+
 	instances: Sequence[Instance]
+	"""
+	A sequence of individual instances of this class.
+	"""
+
 	multi_instances: Sequence[MultiInstance]
+	"""
+	A sequence of multi-instances of this class. An example of a
+	multi instance would be a crowd of people (labeled as such).
+	"""
 
 	@staticmethod
 	def from_json(json: ClassAnnotationJson) -> ClassAnnotation:
+		"""
+		Constructs a `ClassAnnotation` from a `ClassAnnotationJson`.
+		"""
 		return ClassAnnotation(
 			instances = [Instance.from_json(instance) for instance in json["instances"]] if "instances" in json else [],
 			multi_instances = [MultiInstance.from_json(multi_instance) for multi_instance in json["multiInstances"]] if "multiInstances" in json else []
@@ -27,22 +49,28 @@ class ClassAnnotation:
 		self.instances = instances
 		self.multi_instances = multi_instances
 
-	def apply_confidence_threshold(self, threshold: float) -> ClassAnnotation:
+	def filter_detections(
+		self,
+		*,
+		instance_filter: Callable[[Instance], bool],
+		multi_instance_filter: Callable[[MultiInstance], bool]
+	) -> ClassAnnotation:
+		"""
+		Returns a new class annotation consisting only of the instances and
+		multi-instances that meet the given constraints.
+		"""
+		return ClassAnnotation(
 			instances = [
 				instance
 				for instance in self.instances
-				if instance.confidence is None or instance.confidence >= threshold
-			]
+				if instance_filter(instance)
+			],
 			multi_instances = [
 				multi_instance
 				for multi_instance in self.multi_instances
-				if multi_instance.confidence is None or multi_instance.confidence >= threshold
+				if multi_instance_filter(multi_instance)
 			]
-
-			return ClassAnnotation(
-				instances = instances,
-				multi_instances = multi_instances,
-			)
+		)
 
 	def __repr__(self) -> str:
 		return basic_repr("ClassAnnotation", instances = self.instances, multi_instances = self.multi_instances)
@@ -65,6 +93,10 @@ class ClassAnnotation:
 		)
 
 	def to_json(self) -> ClassAnnotationJson:
+		"""
+		Serializes this `ClassAnnotation` into a `ClassAnnotationJson`.
+		"""
+
 		return {
 			"instances": [instance.to_json() for instance in self.instances],
 			"multiInstances": [multi_instance.to_json() for multi_instance in self.multi_instances]

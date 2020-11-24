@@ -1,3 +1,8 @@
+"""
+The `mldl_public.api.entities` submodule contains several enttiies
+that provide a user-friendly abstraction for the MLDL API.
+"""
+
 from .api import Api
 
 from .user import User

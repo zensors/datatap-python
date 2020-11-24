@@ -87,8 +87,9 @@ class Image:
 			for i in range(attempts):
 				try:
 					with fsspec.open(path) as f:
-						self._pil_image = PIL.Image.open(BytesIO(f.read()))
-						return self._pil_image
+						pil_image = PIL.Image.open(BytesIO(f.read()))
+						# self._pil_image = pil_image # TODO(mdsavage): figure out if/how we can reenable caching
+						return pil_image
 				except Exception as e:
 					if not quiet:
 						print(f"Cannot load image {path}, with error {str(e)}, attempt ({i + 1}/{attempts})", file = sys.stderr)

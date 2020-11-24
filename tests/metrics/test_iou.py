@@ -1,15 +1,15 @@
 import unittest
 
 import numpy as np
-from mldl_public.droplet import (BoundingBox, ClassAnnotation, Image,
+from datatap.droplet import (BoundingBox, ClassAnnotation, Image,
                                  ImageAnnotation, Instance)
-from mldl_public.geometry import Point, Rectangle
-from mldl_public.metrics.confusion_matrix import ConfusionMatrix
-from mldl_public.metrics.iou import (generate_confusion_matrix,
+from datatap.geometry import Point, Rectangle
+from datatap.metrics.confusion_matrix import ConfusionMatrix
+from datatap.metrics.iou import (generate_confusion_matrix,
                                      generate_pr_curve)
-from mldl_public.metrics.precision_recall_curve import (_DetectionEvent as DetectionEvent,
+from datatap.metrics.precision_recall_curve import (_DetectionEvent as DetectionEvent,
                                                         PrecisionRecallCurve)
-from mldl_public.template import (ClassAnnotationTemplate,
+from datatap.template import (ClassAnnotationTemplate,
                                   ImageAnnotationTemplate, InstanceTemplate)
 
 tpl = ImageAnnotationTemplate(

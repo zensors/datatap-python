@@ -1,6 +1,6 @@
 # pyright: reportPrivateUsage=false
 
-from mldl_public.metrics.precision_recall_curve import _DetectionEvent as DetectionEvent, MaximizeF1Result, PrecisionRecallCurve
+from datatap.metrics.precision_recall_curve import _DetectionEvent as DetectionEvent, MaximizeF1Result, PrecisionRecallCurve
 
 import unittest
 

@@ -1,8 +1,8 @@
-# MLDL Python Library
+# dataTap Python Library
 
-The MLDL Python Library is a collection of utilities and examples
-related to the MLDL specification.
+The dataTap Python Library is a collection of utilities and examples
+related to the dataTap specification.
 
-# Zensors MLDL
+# dataTap
 
 TODO(zwade): All of this

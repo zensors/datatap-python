@@ -35,3 +35,9 @@ steps:
     commands:
       - "python3.7 setup.py bdist_wheel upload -r zensors"
     if: build.branch == "master"
+
+  - label: ":github: Pushing to github"
+    commands:
+      - "git remote add origin git@github.com:Zensors/datatap-python.git || true"
+      - "git push origin ${BUILDKITE_BRANCH}"
+    if: "build.branch !~ /^refs/"

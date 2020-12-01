@@ -1,9 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing_extensions import TypedDict
 
 from ..utils import basic_repr
 
+class MultiInstanceTemplateJson(TypedDict, total=False):
+	"""
+	The serialized JSON representation of a multi instance template.
+	"""
+
+	boundingBox: bool
+	segmentation: bool
+	count: bool
 
 class MultiInstanceTemplate():
 	"""
@@ -39,15 +47,15 @@ class MultiInstanceTemplate():
 		self.segmentation = segmentation
 		self.count = count
 
-	def to_json(self) -> Dict[str, Any]:
-		json = {}
+	def to_json(self) -> MultiInstanceTemplateJson:
+		json = MultiInstanceTemplateJson()
 		if self.bounding_box: json["boundingBox"] = True
 		if self.segmentation: json["segmentation"] = True
 		if self.count: json["count"] = True
 		return json
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]) -> MultiInstanceTemplate:
+	def from_json(json: MultiInstanceTemplateJson) -> MultiInstanceTemplate:
 		bounding_box = json.get("boundingBox", False)
 		segmentation = json.get("segmentation", False)
 		count = json.get("count", False)

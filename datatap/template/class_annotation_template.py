@@ -1,11 +1,20 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Optional
+
+from typing_extensions import TypedDict
 
 from ..utils import basic_repr
-from .instance_template import InstanceTemplate
-from .multi_instance_template import MultiInstanceTemplate
+from .instance_template import InstanceTemplate, InstanceTemplateJson
+from .multi_instance_template import MultiInstanceTemplate, MultiInstanceTemplateJson
 
+class ClassAnnotationTemplateJson(TypedDict, total=False):
+	"""
+	The serialized JSON representation of a class annotation template.
+	"""
+
+	instances: InstanceTemplateJson
+	multiInstances: MultiInstanceTemplateJson
 
 class ClassAnnotationTemplate():
 	"""
@@ -34,17 +43,17 @@ class ClassAnnotationTemplate():
 		self.instances = instances
 		self.multi_instances = multi_instances
 
-	def to_json(self) -> Dict[str, Any]:
+	def to_json(self) -> ClassAnnotationTemplateJson:
 		"""
 		Serializes this object into JSON.
 		"""
-		json = {}
+		json = ClassAnnotationTemplateJson()
 		if self.instances is not None: json["instances"] = self.instances.to_json()
 		if self.multi_instances is not None: json["multiInstances"] = self.multi_instances.to_json()
 		return json
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]) -> ClassAnnotationTemplate:
+	def from_json(json: ClassAnnotationTemplateJson) -> ClassAnnotationTemplate:
 		"""
 		Deserializes a JSON object into a `ClassAnnotationTemplate`.
 		"""

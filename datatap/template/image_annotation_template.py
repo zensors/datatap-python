@@ -1,9 +1,18 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping
+from typing import Dict, Mapping
+
+from typing_extensions import TypedDict
 
 from ..utils import basic_repr
-from .class_annotation_template import ClassAnnotationTemplate
+from .class_annotation_template import ClassAnnotationTemplate, ClassAnnotationTemplateJson
+
+class ImageAnnotationTemplateJson(TypedDict):
+	"""
+	The serialized JSON representation of an image annotation template.
+	"""
+
+	classes: Dict[str, ClassAnnotationTemplateJson]
 
 class ImageAnnotationTemplate():
 	"""
@@ -20,7 +29,7 @@ class ImageAnnotationTemplate():
 	def __init__(self, *, classes: Mapping[str, ClassAnnotationTemplate]):
 		self.classes = classes
 
-	def to_json(self) -> Dict[str, Any]:
+	def to_json(self) -> ImageAnnotationTemplateJson:
 		"""
 		Serializes this object to JSON.
 		"""
@@ -32,7 +41,7 @@ class ImageAnnotationTemplate():
 		}
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]) -> ImageAnnotationTemplate:
+	def from_json(json: ImageAnnotationTemplateJson) -> ImageAnnotationTemplate:
 		"""
 		Deserializes a JSON object into an `ImageAnnotationTemplate`.
 		"""

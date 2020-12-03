@@ -1,9 +1,21 @@
 from __future__ import annotations
 
-from typing import AbstractSet, Any, Dict, Mapping
+from typing import AbstractSet, Dict, List, Mapping
+
+from typing_extensions import TypedDict
 
 from ..utils import basic_repr
 
+
+class InstanceTemplateJson(TypedDict, total=False):
+	"""
+	The serialized JSON representation of an instance template.
+	"""
+
+	boundingBox: bool
+	segmentation: bool
+	keypoints: List[str]
+	attributes: Dict[str, List[str]]
 
 class InstanceTemplate():
 	"""
@@ -49,19 +61,21 @@ class InstanceTemplate():
 		self.keypoints = keypoints
 		self.attributes = attributes
 
-	def to_json(self) -> Dict[str, Any]:
+	def to_json(self) -> InstanceTemplateJson:
 		"""
 		Serializes this object as JSON.
 		"""
-		json = {}
+		json = InstanceTemplateJson()
+
 		if self.bounding_box: json["boundingBox"] = True
 		if self.segmentation: json["segmentation"] = True
 		if len(self.keypoints) > 0: json["keypoints"] = list(self.keypoints)
 		if len(self.attributes) > 0: json["attributes"] = { key: list(values) for key, values in self.attributes.items() }
+
 		return json
 
 	@staticmethod
-	def from_json(json: Dict[str, Any]) -> InstanceTemplate:
+	def from_json(json: InstanceTemplateJson) -> InstanceTemplate:
 		"""
 		Deserializes a JSON object as an `InstanceTemplate`.
 		"""
@@ -70,7 +84,7 @@ class InstanceTemplate():
 		keypoints = set(json.get("keypoints", []))
 		attributes = {
 			key: set(values)
-			for key, values in json.get("keypoints", {})
+			for key, values in json.get("attributes", {})
 		}
 		return InstanceTemplate(
 			bounding_box=bounding_box,

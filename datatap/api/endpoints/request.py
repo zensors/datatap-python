@@ -9,7 +9,7 @@ from typing import Generator, Optional, Dict, TypeVar, Generic, Type, Any
 import requests
 
 # TODO(zwade): replace this with the real URI
-DEFAULT_API_URI = os.getenv("DATATAP_API_URI", "http://10.11.18.50:8080")
+DEFAULT_API_URI = os.getenv("DATATAP_API_URI", "https://app.datatap.dev")
 
 _T = TypeVar("_T")
 _S = TypeVar("_S")

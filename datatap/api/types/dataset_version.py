@@ -1,4 +1,5 @@
-from typing import List, Dict, Any
+from datatap.template.image_annotation_template import ImageAnnotationTemplateJson
+from typing import List
 from typing_extensions import TypedDict
 
 class JsonDatasetVersion(TypedDict):
@@ -9,5 +10,5 @@ class JsonDatasetVersion(TypedDict):
     uid: str
     database: str
     splits: List[str]
-    template: Dict[str, Any] # needs to be decoded by the annotation template class
+    template: ImageAnnotationTemplateJson
 

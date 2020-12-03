@@ -84,7 +84,7 @@ class InstanceTemplate():
 		keypoints = set(json.get("keypoints", []))
 		attributes = {
 			key: set(values)
-			for key, values in json.get("attributes", {})
+			for key, values in json.get("attributes", {}).items()
 		}
 		return InstanceTemplate(
 			bounding_box=bounding_box,

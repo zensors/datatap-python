@@ -3,6 +3,7 @@ from __future__ import annotations
 from os import cpu_count
 from typing import Callable, Dict, Generator, Optional, TypeVar, cast, TYPE_CHECKING
 
+import torch
 import PIL.Image
 import torchvision.transforms.functional as TF
 from torch.utils.data import DataLoader as TorchDataLoader
@@ -31,6 +32,7 @@ def create_dataloader(
     *,
     image_transform: Callable[[PIL.Image.Image], _T] = TF.to_tensor,
     class_mapping: Optional[Dict[str, int]] = None,
+    device: torch.device = torch.device("cpu")
 ) -> DataLoader[DatasetBatch]:
     """
     Creates a PyTorch `Dataloader` that yields batches of annotations.
@@ -40,8 +42,10 @@ def create_dataloader(
     function must ultimately return a `torch.Tensor` of dimensionality
     `(..., H, W)`.
     """
+    if torch.multiprocessing.get_start_method(allow_none = True) is None:
+        torch.multiprocessing.set_start_method("spawn")
 
-    dataset = IterableDataset(version, split, image_transform = image_transform, class_mapping = class_mapping)
+    dataset = IterableDataset(version, split, image_transform = image_transform, class_mapping = class_mapping, device = device)
     dataloader = cast(
         DataLoader[DatasetBatch],
         DataLoader(

@@ -1,15 +1,12 @@
 from __future__ import annotations
+from datatap.utils.environment import Environment
 
-import os
 import json
 from base64 import b64encode
 from urllib.parse import urljoin
 from typing import Generator, Optional, Dict, TypeVar, Generic, Type, Any
 
 import requests
-
-# TODO(zwade): replace this with the real URI
-DEFAULT_API_URI = os.getenv("DATATAP_API_URI", "https://app.datatap.dev")
 
 _T = TypeVar("_T")
 _S = TypeVar("_S")
@@ -21,9 +18,9 @@ class GetRequester(Generic[_T]):
     api_key: str
     uri: str
 
-    def __init__(self, api_key: str, uri: str):
+    def __init__(self, api_key: str, base_uri: str):
         self.api_key = api_key
-        self.uri = uri
+        self.uri = base_uri
 
     def __getitem__(self, s: Type[_S]) -> GetRequester[_S]:
         return self
@@ -108,14 +105,14 @@ class Request:
     Function for typesafe streaming requests.
     """
 
-    def __init__(self, api_key: Optional[str] = None, uri: Optional[str] = None):
-        api_key = api_key or os.getenv("DATATAP_API_KEY")
-        uri = uri or DEFAULT_API_URI
+    def __init__(self, api_key: Optional[str] = None, base_uri: Optional[str] = None):
+        api_key = api_key or Environment.API_KEY
+        base_uri = base_uri or Environment.BASE_URI
         if api_key is None:
             raise Exception("No API key available. Either provide it or use the [DATATAP_API_KEY] environment variable")
 
-        self.get = GetRequester[Any](api_key, uri)
-        self.stream = StreamRequester[Any](api_key, uri)
+        self.get = GetRequester[Any](api_key, base_uri)
+        self.stream = StreamRequester[Any](api_key, base_uri)
 
 class ApiNamespace:
     """

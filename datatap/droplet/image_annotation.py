@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Callable, Dict, Mapping, Optional
+from urllib.parse import urlencode
 
+from datatap.utils import Environment
 from typing_extensions import TypedDict
 
 from ..geometry import Mask, MaskJson
@@ -171,3 +174,32 @@ class ImageAnnotation:
 			json["mask"] = self.mask.to_json()
 
 		return json
+
+	def get_visualization_url(self) -> str:
+		"""
+		Generates a URL on the dataTap platform that can be visited to view a
+		visualization of this `ImageAnnotation`.
+		"""
+		params = {
+			"annotation": json.dumps(self.to_json())
+		}
+
+		return f"{Environment.BASE_URI}/visualizer/single#{urlencode(params)}"
+
+	def get_comparison_url(self, other: ImageAnnotation) -> str:
+		"""
+		Generates a URL on the dataTap platform that can be visited to view a
+		visual comparison of this `ImageAnnotation` (which is treated as the
+		"ground truth") and the `other` argument (which is treated as the
+		"proposal").
+
+		This method does not check that the two annotations agree on what image
+		they are annotating, and will always use this `ImageAnnotation`'s
+		image.
+		"""
+		params = {
+			"groundTruth": json.dumps(self.to_json()),
+			"proposal": json.dumps(other.to_json())
+		}
+
+		return f"{Environment.BASE_URI}/visualizer/compare#{urlencode(params)}"

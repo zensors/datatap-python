@@ -26,7 +26,7 @@ setuptools.setup(
     description = "Client library for dataTap",
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = "https://zensors.com",
+    url = "https://datatap.dev",
     packages = setuptools.find_packages(),
     package_data = { "": ["image/assets/*"], "datatap": ["py.typed"] },
     classifiers = [

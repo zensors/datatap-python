@@ -34,6 +34,7 @@ steps:
   - label: ":package: Building and Pushing Wheel"
     commands:
       - "python3.7 setup.py bdist_wheel upload -r zensors"
+      - "python3.7 setup.py bdist_wheel upload -r datatap"
     if: build.branch == "master"
 
   - label: ":package: Building and Pushing Documentation"

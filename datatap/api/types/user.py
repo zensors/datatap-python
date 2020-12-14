@@ -1,3 +1,4 @@
+from typing import Optional
 from typing_extensions import TypedDict
 
 class JsonUser(TypedDict):
@@ -8,4 +9,5 @@ class JsonUser(TypedDict):
     firstName: str
     lastName: str
     email: str
+    defaultDatabase: Optional[str]
 

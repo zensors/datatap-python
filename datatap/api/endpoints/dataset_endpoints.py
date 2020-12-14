@@ -23,11 +23,17 @@ class Dataset(ApiNamespace):
         """
         return self.get[List[JsonDataset]](f"/database/{database_uid}/dataset")
 
-    def query(self, database_uid: str, dataset_uid: str) -> JsonDatasetVersion:
+    def query_by_uid(self, database_uid: str, dataset_uid: str) -> JsonDatasetVersion:
         """
         Queries a specific `JsonDatasetVersion` by its uid and its database's UID.
         """
         return self.get[JsonDatasetVersion](f"/database/{database_uid}/dataset/{dataset_uid}")
+
+    def query_by_name(self, database_uid: str, dataset_name: str) -> List[JsonDataset]:
+        """
+        Queries the database for datasets of a particular name, and returns the corresponding `JsonDataset` list
+        """
+        return self.post[List[JsonDataset]](f"/database/{database_uid}/dataset/query", { "name": dataset_name })
 
     def stream_split(self, database_uid: str, dataset_uid: str, split: str, chunk: int, nchunks: int) -> Generator[ImageAnnotationJson, None, None]:
         """

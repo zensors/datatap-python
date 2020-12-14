@@ -1,4 +1,8 @@
-from typing import List, Optional
+from typing import List, Optional, Union, overload
+
+from typing_extensions import Literal
+
+from datatap.utils.helpers import assert_one
 
 from .user import User
 from .database import Database
@@ -63,17 +67,34 @@ class Api:
         """
 
         # TODO(zwade): Have a way of specifying a per-user default
-        db_list = self.get_database_list()
-
-        if len(db_list) == 0:
+        current_user = self.get_current_user()
+        if current_user.default_database is None:
             raise Exception("Trying to find the default database, but none is specified")
-        if len(db_list) > 1:
-            raise Exception("Trying to find the default database, but too many are specified")
 
-        return db_list[0]
+        return self.get_database_by_uid(current_user.default_database)
 
     def get_database_by_uid(self, uid: str) -> Database:
         """
         Queries a database by its UID and returns it.
         """
-        return Database.from_json(self.endpoints, self.endpoints.database.query(uid))
+        return Database.from_json(self.endpoints, self.endpoints.database.query_by_uid(uid))
+
+
+    @overload
+    def get_database_by_name(self, name: str, allow_multiple: Literal[True]) -> List[Database]: ...
+    @overload
+    def get_database_by_name(self, name: str, allow_multiple: Literal[False] = False) -> Database: ...
+    def get_database_by_name(self, name: str, allow_multiple: bool = False) -> Union[Database, List[Database]]:
+        """
+        Queries a database by its name and returns it. If `allow_multiple` is true, it will return
+        a list of databases.
+        """
+        database_list = [
+            Database.from_json(self.endpoints, database)
+            for database in self.endpoints.database.query_by_name(name)
+        ]
+
+        if allow_multiple:
+            return database_list
+        else:
+            return assert_one(database_list)

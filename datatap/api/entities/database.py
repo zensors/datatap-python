@@ -1,7 +1,9 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional, Union, overload
 
-from datatap.utils import basic_repr
+from typing_extensions import Literal
+
+from datatap.utils import basic_repr, assert_one
 
 from .dataset import DatasetVersion, Dataset
 from ..endpoints import ApiEndpoints
@@ -67,8 +69,27 @@ class Database:
         """
         return DatasetVersion.from_json(
             self._endpoints,
-            self._endpoints.dataset.query(self.uid, dataset_uid)
+            self._endpoints.dataset.query_by_uid(self.uid, dataset_uid)
         )
+
+    @overload
+    def get_dataset_by_name(self, name: str, allow_multiple: Literal[True]) -> List[Dataset]: ...
+    @overload
+    def get_dataset_by_name(self, name: str, allow_multiple: Literal[False] = False) -> Dataset: ...
+    def get_dataset_by_name(self, name: str, allow_multiple: bool = False) -> Union[Dataset, List[Dataset]]:
+        """
+        Queries a `Dataset`s by name. If `allow_multiple` is specified, it returns
+        a list of `Dataset`s.
+        """
+        dataset_list = [
+            Dataset.from_json(self._endpoints, dataset)
+            for dataset in self._endpoints.dataset.query_by_name(self.uid, name)
+        ]
+
+        if (allow_multiple):
+            return dataset_list
+        else:
+            return assert_one(dataset_list)
 
     def __repr__(self):
         return basic_repr("Database", self.uid, name = self.name)

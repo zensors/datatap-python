@@ -62,7 +62,7 @@ class Dataset:
         Fetches all of the former dataset versions from the server.
         """
         return [
-            DatasetVersion.from_json(self._endpoints, self._endpoints.dataset.query(self.database, dataset_uid))
+            DatasetVersion.from_json(self._endpoints, self._endpoints.dataset.query_by_uid(self.database, dataset_uid))
             for dataset_uid in self.previous_values
         ]
 

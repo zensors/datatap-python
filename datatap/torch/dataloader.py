@@ -30,7 +30,7 @@ def create_dataloader(
     batch_size: int = 1,
     num_workers: int = cpu_count() or 0,
     *,
-    image_transform: Callable[[PIL.Image.Image], _T] = TF.to_tensor,
+    image_transform: Callable[[PIL.Image.Image], torch.Tensor] = TF.to_tensor,
     class_mapping: Optional[Dict[str, int]] = None,
     device: torch.device = torch.device("cpu")
 ) -> DataLoader[DatasetBatch]:
@@ -44,6 +44,7 @@ def create_dataloader(
     """
     if torch.multiprocessing.get_start_method(allow_none = True) is None:
         torch.multiprocessing.set_start_method("spawn")
+    print(torch.multiprocessing.get_start_method())
 
     dataset = IterableDataset(version, split, image_transform = image_transform, class_mapping = class_mapping, device = device)
     dataloader = cast(
@@ -51,8 +52,8 @@ def create_dataloader(
         DataLoader(
             dataset,
             batch_size,
-            collate_fn=collate,
-            num_workers=num_workers,
+            collate_fn = collate, # type: ignore (Torch's types are off)
+            num_workers = num_workers,
         )
     )
 

@@ -12,8 +12,8 @@ def tensor_to_rectangle(tensor: torch.Tensor) -> Rectangle:
     Expects a tensor of dimensionality `torch.Size([4])` in `xyxy` format
     """
     return Rectangle(
-        Point(float(tensor[0]), float(tensor[1])),
-        Point(float(tensor[2]), float(tensor[3])),
+        Point(float(tensor[0]), float(tensor[1]), clip = True),
+        Point(float(tensor[2]), float(tensor[3]), clip = True),
     )
 
 def torch_to_image_annotation(

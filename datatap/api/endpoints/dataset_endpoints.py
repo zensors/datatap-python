@@ -1,17 +1,25 @@
+from __future__ import annotations
+
 import json
 import tempfile
 import os
 import time
+import ctypes
 from os import path
 from typing import Generator, List, Optional
-from multiprocessing import Process, Semaphore, Queue
+from threading import Thread, Semaphore
+from queue import Queue
+from multiprocessing import Array, set_start_method
 
 from datatap.droplet import ImageAnnotationJson
+from datatap.utils import DeletableGenerator
 
 from .request import ApiNamespace
 from ..types import JsonDatasetVersion, JsonDataset
 
-process_directory = tempfile.mkdtemp(prefix="datatap-")
+set_start_method("spawn", force = True)
+process_directory_value = Array(ctypes.c_char, tempfile.mkdtemp(prefix="datatap-").encode("ascii"))
+process_directory: str = process_directory_value.value.decode("ascii")
 
 class Dataset(ApiNamespace):
     """
@@ -75,13 +83,15 @@ class Dataset(ApiNamespace):
 
         # Checks for an authoritative cache, using it if it exists.
         if path.exists(file_name):
-            with open(file_name, "r") as f:
-                for line in f.readlines():
-                    line = line.strip()
-                    if line == "" or line == EOF:
-                        continue
-                    yield json.loads(line)
-            return
+            def generator():
+                with open(file_name, "r") as f:
+                    for line in f.readlines():
+                        line = line.strip()
+                        if line == "" or line == EOF:
+                            continue
+                        yield json.loads(line)
+                return
+            return generator()
 
 
         # `sync_queue` is used to synchronize startup and termination of the
@@ -92,16 +102,22 @@ class Dataset(ApiNamespace):
         # the stream file that have not yet been consumed.
         available_annotations = Semaphore()
 
+        # `dead` is a flag that allows us to terminate our stream early
+        dead = False
+
         def stream_target():
             stream = self.stream[ImageAnnotationJson](
                 f"/database/{database_uid}/dataset/{dataset_uid}/split/{split}/stream",
                 { "chunk": str(chunk), "nchunks": str(nchunks) }
             )
 
-            sync_queue.put(None)
             with open(tmp_file_name, "a+") as f:
+                sync_queue.put(None)
                 try:
                     for element in stream:
+                        if dead:
+                            raise Exception("Premature termination")
+
                         # We want to prioritize reading quickly, so after we write, we
                         # flush to the disk.
                         #
@@ -124,37 +140,46 @@ class Dataset(ApiNamespace):
                     f.flush()
                     available_annotations.release()
 
-        proc = Process(target = stream_target)
-        proc.start()
+        thread = Thread(target = stream_target)
+        thread.start()
 
-        sync_queue.get()
-        with open(tmp_file_name, "r") as f:
-            while True:
-                available_annotations.acquire()
+        def generator():
+            sync_queue.get()
+            with open(tmp_file_name, "r") as f:
+                while True:
+                    available_annotations.acquire()
 
-                line = ""
-                c = 0
-                while line == "" or line[-1] != "\n":
-                    # Busy loop to wait for the file write.
-                    #
-                    # If we're eagerly fetching a large portion of the stream
-                    # we may become bottlenecked by file synchronization. In
-                    # this case, we implement a simple backoff to avoid
-                    # unnecessarily hammering the file system.
-                    line += f.readline()
-                    c += 1
-                    if c > 10:
-                        time.sleep(0.005)
+                    line = ""
+                    c = 0
+                    while line == "" or line[-1] != "\n":
+                        # Busy loop to wait for the file write.
+                        #
+                        # If we're eagerly fetching a large portion of the stream
+                        # we may become bottlenecked by file synchronization. In
+                        # this case, we implement a simple backoff to avoid
+                        # unnecessarily hammering the file system.
+                        line += f.readline()
+                        c += 1
+                        if c > 10:
+                            time.sleep(0.005)
 
-                data = line.strip()
-                if data == EOF:
-                    break
+                    data = line.strip()
+                    if data == EOF:
+                        break
 
-                yield json.loads(data)
+                    yield json.loads(data)
 
-            proc.join()
+                thread.join()
 
-            error = sync_queue.get()
-            if error is not None:
-                # This error came from the data loading subprocess
-                raise error
+                error = sync_queue.get()
+                if error is not None:
+                    # This error came from the data loading subprocess
+                    raise error
+
+        def stop_processing():
+            # This is a rather gross way of killing it, but unlike `Process`, `Thread`
+            # has no `terminate` method.
+            nonlocal dead
+            dead = True
+
+        return DeletableGenerator(generator(), stop_processing)

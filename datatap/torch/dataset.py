@@ -174,6 +174,7 @@ class IterableDataset(TorchIterableDataset[DatasetElement]):
                 self._class_mapping[class_name]
                 for class_name in annotation.classes.keys()
                 for _ in annotation.classes[class_name].instances
+                if class_name in self._class_mapping
             ]
 
             target = torch.tensor(instance_boxes).reshape((-1, 4)).to(self._device)

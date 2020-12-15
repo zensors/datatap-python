@@ -94,7 +94,7 @@ class Image:
 					if not quiet:
 						print(f"Cannot load image {path}, with error {str(e)}, attempt ({i + 1}/{attempts})", file = sys.stderr)
 
-		raise FileNotFoundError("All paths for image failed to load")
+		raise FileNotFoundError("All paths for image failed to load", self.paths)
 
 	def to_json(self) -> ImageJson:
 		"""

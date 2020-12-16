@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datatap.api.types.dataset import JsonDataset
 
 import json
 import tempfile
@@ -6,7 +7,7 @@ import os
 import time
 import ctypes
 from os import path
-from typing import Generator, List, Optional
+from typing import Generator, Optional
 from threading import Thread, Semaphore
 from queue import Queue
 from multiprocessing import Array, set_start_method
@@ -15,7 +16,6 @@ from datatap.droplet import ImageAnnotationJson
 from datatap.utils import DeletableGenerator
 
 from .request import ApiNamespace
-from ..types import JsonDatasetVersion, JsonDataset
 
 set_start_method("spawn", force = True)
 process_directory_value = Array(ctypes.c_char, tempfile.mkdtemp(prefix="datatap-").encode("ascii"))
@@ -25,29 +25,29 @@ class Dataset(ApiNamespace):
     """
     Raw API for interacting with dataset endpoints.
     """
-    def list(self, database_uid: str) -> List[JsonDataset]:
-        """
-        Returns a list of `JsonDataset`s in the database specified by `database_uid`.
-        """
-        return self.get[List[JsonDataset]](f"/database/{database_uid}/dataset")
 
-    def query_by_uid(self, database_uid: str, dataset_uid: str) -> JsonDatasetVersion:
+    def query(self, database_uid: str, namespace: str, name: str, tag: str) -> JsonDataset:
         """
-        Queries a specific `JsonDatasetVersion` by its uid and its database's UID.
+        Queries the database for a dataset with given `namespace`, `name`, and `tag`.
+        Returns a `JsonDataset`.
         """
-        return self.get[JsonDatasetVersion](f"/database/{database_uid}/dataset/{dataset_uid}")
+        return self.get[JsonDataset](f"/database/{database_uid}/repository/{namespace}/{name}/{tag}")
 
-    def query_by_name(self, database_uid: str, dataset_name: str) -> List[JsonDataset]:
+    def stream_split(
+        self,
+        *,
+        database_uid: str,
+        namespace: str,
+        name: str,
+        tag: str,
+        split: str,
+        chunk: int,
+        nchunks: int
+    ) -> Generator[ImageAnnotationJson, None, None]:
         """
-        Queries the database for datasets of a particular name, and returns the corresponding `JsonDataset` list
-        """
-        return self.post[List[JsonDataset]](f"/database/{database_uid}/dataset/query", { "name": dataset_name })
-
-    def stream_split(self, database_uid: str, dataset_uid: str, split: str, chunk: int, nchunks: int) -> Generator[ImageAnnotationJson, None, None]:
-        """
-        Streams a split of a dataset. Required to stream are the `database_uid`, the `dataset_uid`, and the `split`.
-        Additionally, since this endpoint automatically shards the split, you must provide a chunk number (`chunk`)
-        and the total number of chunks in the shard (`nchunks`).
+        Streams a split of a dataset. Required to stream are the `database_uid`, the full path of the daataset, and the
+        `split`. Additionally, since this endpoint automatically shards the split, you must provide a chunk number
+        (`chunk`) and the total number of chunks in the shard (`nchunks`).
 
         The result is a generator of `ImageAnnotationJson`s.
         """
@@ -74,7 +74,8 @@ class Dataset(ApiNamespace):
         # recommended that this function be used with a data-loader capable of running
         # on multiple threads.
 
-        dir_name = f"{process_directory}/{dataset_uid}-{split}-{nchunks}"
+        # TODO(zwade): change this to UID once we have an endpoint for fetching it
+        dir_name = f"{process_directory}/{namespace}-{name}-{split}-{nchunks}"
         file_name = f"{dir_name}/chunk-{chunk}.jsonl"
         tmp_file_name = f"{file_name}.stream"
         os.makedirs(dir_name, exist_ok=True)
@@ -107,7 +108,7 @@ class Dataset(ApiNamespace):
 
         def stream_target():
             stream = self.stream[ImageAnnotationJson](
-                f"/database/{database_uid}/dataset/{dataset_uid}/split/{split}/stream",
+                f"/database/{database_uid}/repository/{namespace}/{name}/{tag}/split/{split}/stream",
                 { "chunk": str(chunk), "nchunks": str(nchunks) }
             )
 

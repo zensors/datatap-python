@@ -11,21 +11,20 @@ from datatap import Api
 
 api = Api("your-api-key-here") # this can also be specified in [DATATAP_API_KEY]
 
-dataset_uid = "your dataset uid here"
-
 database = api.get_default_database()
-dataset_version = database.get_dataset_by_uid(dataset_uid)
+repository = database.get_repository("public/open-images")
+dataset = repository.get_dataset("latest")
 
-print("Loaded dataset version:", dataset_version)
+print("Loaded dataset:", dataset)
 
 # You'll probably want to sanity-check the template and/or get the class list from it
-print("Dataset template:", dataset_version.template)
+print("Dataset template:", dataset.template)
 
 # Datasets can be streamed by specifying which split of the dataset you want
 # The streams are returned as generators that yield individual annotations
 
-training_stream = dataset_version.stream_split("training")
-validation_stream = dataset_version.stream_split("validation")
+training_stream = dataset.stream_split("training")
+validation_stream = dataset.stream_split("validation")
 
 print(f"First training element: {next(training_stream)}")
 ```

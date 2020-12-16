@@ -8,7 +8,7 @@ import PIL.Image
 import torchvision.transforms.functional as TF
 from torch.utils.data import DataLoader as TorchDataLoader
 
-from datatap.api.entities import DatasetVersion
+from datatap.api.entities import Dataset
 
 from .dataset import IterableDataset, DatasetBatch, collate
 
@@ -25,7 +25,7 @@ else:
     DataLoader = TorchDataLoader
 
 def create_dataloader(
-    version: DatasetVersion,
+    dataset: Dataset,
     split: str,
     batch_size: int = 1,
     num_workers: int = cpu_count() or 0,
@@ -46,11 +46,11 @@ def create_dataloader(
         torch.multiprocessing.set_start_method("spawn")
     print(torch.multiprocessing.get_start_method())
 
-    dataset = IterableDataset(version, split, image_transform = image_transform, class_mapping = class_mapping, device = device)
+    torch_dataset = IterableDataset(dataset, split, image_transform = image_transform, class_mapping = class_mapping, device = device)
     dataloader = cast(
         DataLoader[DatasetBatch],
         DataLoader(
-            dataset,
+            torch_dataset,
             batch_size,
             collate_fn = collate, # type: ignore (Torch's types are off)
             num_workers = num_workers,

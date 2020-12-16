@@ -8,7 +8,7 @@ import torchvision.transforms.functional as TF
 from torch.utils.data import IterableDataset as TorchIterableDataset, get_worker_info # type: ignore
 
 from datatap.droplet import ImageAnnotation
-from datatap.api.entities import DatasetVersion
+from datatap.api.entities import Dataset
 
 class DatasetElement():
     """
@@ -101,7 +101,7 @@ class IterableDataset(TorchIterableDataset[DatasetElement]):
     `torchvision.transforms.functional.to_tensor` as the final step of the transform.
     """
 
-    _dataset: DatasetVersion
+    _dataset: Dataset
     _split: str
     _class_mapping: Dict[str, int]
     _class_names: Dict[int, str]
@@ -109,7 +109,7 @@ class IterableDataset(TorchIterableDataset[DatasetElement]):
 
     def __init__(
         self,
-        dataset: DatasetVersion,
+        dataset: Dataset,
         split: str,
         class_mapping: Optional[Dict[str, int]] = None,
         image_transform: Callable[[PIL.Image.Image], torch.Tensor] = TF.to_tensor,

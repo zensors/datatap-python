@@ -21,6 +21,6 @@ class Database(ApiNamespace):
 
     def query_by_name(self, database_name: str) -> List[JsonDatabase]:
         """
-        Returns a list of `JsonDatabase`s with the name `database_name`
+        Returns a list of `JsonDatabase`s with the name `database_name`.
         """
         return self.post[List[JsonDatabase]](f"/database/query", { "name": database_name })

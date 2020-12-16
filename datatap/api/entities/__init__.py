@@ -8,12 +8,14 @@ from .api import Api
 from .user import User
 from .database import Database
 from .dataset import Dataset
-from .dataset_version import DatasetVersion
+from .repository import Repository, Tag, Split
 
 __all__ = [
     "Api",
     "User",
     "Database",
     "Dataset",
-    "DatasetVersion",
+    "Repository",
+    "Tag",
+    "Split",
 ]

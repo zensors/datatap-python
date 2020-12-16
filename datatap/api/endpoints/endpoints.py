@@ -1,3 +1,4 @@
+from datatap.api.endpoints.repository_endpoints import Repository
 from typing import Optional
 
 from .request import Request
@@ -20,6 +21,11 @@ class ApiEndpoints:
     Database endpoints.
     """
 
+    repository: Repository
+    """
+    Repository endpoints.
+    """
+
     dataset: Dataset
     """
     Dataset endpoints.
@@ -32,4 +38,5 @@ class ApiEndpoints:
 
         self.user = User(self._request)
         self.database = Database(self._request)
+        self.repository = Repository(self._request)
         self.dataset = Dataset(self._request)

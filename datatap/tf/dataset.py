@@ -7,9 +7,9 @@ from typing import Dict, Optional
 
 import tensorflow as tf
 
-from datatap.api.entities.dataset_version import DatasetVersion
+from datatap.api.entities import Dataset
 
-def _get_class_mapping(dataset: DatasetVersion, class_mapping: Optional[Dict[str, int]] = None):
+def _get_class_mapping(dataset: Dataset, class_mapping: Optional[Dict[str, int]] = None):
     classes_used = dataset.template.classes.keys()
     if class_mapping is not None:
         if set(class_mapping.keys()) != set(classes_used):
@@ -27,7 +27,7 @@ def _get_class_mapping(dataset: DatasetVersion, class_mapping: Optional[Dict[str
         }
 
 def create_dataset(
-        version: DatasetVersion,
+        dataset: Dataset,
         split: str,
         input_class_mapping: Optional[Dict[str, int]] = None,
         num_workers: int = cpu_count() or 1,
@@ -43,19 +43,20 @@ def create_dataset(
     If you intend to use the dataset across multiple processes or computers, consider
     using `create_tf_multi_worker_dataset` instead.
     """
-    class_mapping = _get_class_mapping(version, input_class_mapping)
+    class_mapping = _get_class_mapping(dataset, input_class_mapping)
 
     def gen():
         worker_id = input_context.input_pipeline_id if input_context is not None else 0
         num_workers = input_context.num_input_pipelines if input_context is not None else 1
 
-        for droplet in version.stream_split(split, worker_id, num_workers):
+        for droplet in dataset.stream_split(split, worker_id, num_workers):
             image_url = tf.constant(droplet.image.paths[0])
 
             bounding_boxes = tf.stack([
-                tf.constant(i.bounding_box.to_xywh_tuple(), shape=(4,), dtype=tf.float64)
+                tf.constant(i.bounding_box.rectangle.to_xywh_tuple(), shape=(4,), dtype=tf.float64)
                 for cls in droplet.classes.keys()
                 for i in droplet.classes[cls].instances
+                if i.bounding_box is not None
             ])
 
             labels = tf.stack([
@@ -88,7 +89,7 @@ def create_dataset(
 
 def create_multi_worker_dataset(
     strategy: tf.distribute.experimental.Strategy,
-    version: DatasetVersion,
+    dataset: Dataset,
     split: str,
     num_workers: int = cpu_count() or 1,
     input_class_mapping: Optional[Dict[str, int]] = None,
@@ -103,6 +104,6 @@ def create_multi_worker_dataset(
     on the machine.
     """
     ds = strategy.experimental_distribute_datasets_from_function(
-        functools.partial(create_dataset, version, split, num_workers, input_class_mapping)
+        functools.partial(create_dataset, dataset, split, num_workers, input_class_mapping)
     )
     return ds

@@ -1,14 +1,18 @@
-from typing import List, Optional
+from datatap.template.image_annotation_template import ImageAnnotationTemplateJson
+from typing import List
 from typing_extensions import TypedDict
 
-from .dataset_version import JsonDatasetVersion
+class JsonDatasetRepository(TypedDict):
+    namespace: str
+    name: str
 
 class JsonDataset(TypedDict):
     """
     The API type of a dataset.
     """
+    uid: str
     database: str
-    name: str
-    dataset: Optional[JsonDatasetVersion]
-    previousValues: List[str]
+    repository: JsonDatasetRepository
+    template: ImageAnnotationTemplateJson
+    splits: List[str]
 

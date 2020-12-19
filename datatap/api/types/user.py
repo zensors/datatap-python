@@ -6,8 +6,7 @@ class JsonUser(TypedDict):
     The API type of an individual user.
     """
     uid: str
-    firstName: str
-    lastName: str
+    username: str
     email: str
     defaultDatabase: Optional[str]
 

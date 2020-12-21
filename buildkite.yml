@@ -11,6 +11,7 @@ steps:
       - "yarn global add pyright"
       - "echo '+++ Running Pyright'"
       - "pyright"
+    if: build.message !~ /skip tests/
     plugins:
       - docker#v3.7.0:
           image: "nikolaik/python-nodejs:python3.8-nodejs12"
@@ -25,6 +26,7 @@ steps:
       - "pip install -e '.[metrics]'"
       - "echo '+++ Running Tests'"
       - "python -m unittest discover tests"
+    if: build.message !~ /skip tests/
     plugins:
       - docker#v3.7.0:
           image: "python:3.8"
@@ -33,8 +35,9 @@ steps:
 
   - label: ":package: Building and Pushing Wheel"
     commands:
-      - "python3.7 setup.py bdist_wheel upload -r zensors"
-      - "python3.7 setup.py bdist_wheel upload -r datatap"
+      - "python3.7 setup.py bdist_wheel"
+      - "twine upload -r datatap dist/*"
+      - "twine upload -r zensors dist/*"
     if: build.branch == "master"
 
   - label: ":package: Building and Pushing Documentation"
@@ -60,6 +63,6 @@ steps:
 
   - label: ":github: Pushing to github"
     commands:
-      - "git remote add origin git@github.com:Zensors/datatap-python.git || true"
-      - "git push origin ${BUILDKITE_BRANCH}"
+      - "git remote add gh git@github.com:Zensors/datatap-python.git || true"
+      - "git push gh ${BUILDKITE_BRANCH}"
     if: "build.branch !~ /^refs/"

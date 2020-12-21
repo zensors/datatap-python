@@ -34,4 +34,32 @@ steps:
   - label: ":package: Building and Pushing Wheel"
     commands:
       - "python3.7 setup.py bdist_wheel upload -r zensors"
+      - "python3.7 setup.py bdist_wheel upload -r datatap"
     if: build.branch == "master"
+
+  - label: ":package: Building and Pushing Documentation"
+    commands:
+      - "echo '--- Setting Up'"
+      - "mkdir -p /build"
+      - "cp -R . /build"
+      - "cd /build"
+      - "echo '--- Installing Packages'"
+      - "pip install -r requirements_torch.txt"
+      - "pip install -e '.[metrics,torch,tf]'"
+      - "pip install pdoc3 awscli"
+      - "echo '+++ Compiling Docs'"
+      - "pdoc3 datatap --html"
+      - "echo '+++ Uploading Docs'"
+      - "cd html/datatap && aws s3 cp --recursive --acl public-read . s3://docs.datatap.dev/"
+    plugins:
+      - docker#v3.7.0:
+          image: "python:3.8"
+          volumes:
+            - "/var/lib/buildkite-agent/.aws/:/root/.aws/"
+    if: build.branch == "master"
+
+  - label: ":github: Pushing to github"
+    commands:
+      - "git remote add origin git@github.com:Zensors/datatap-python.git || true"
+      - "git push origin ${BUILDKITE_BRANCH}"
+    if: "build.branch !~ /^refs/"

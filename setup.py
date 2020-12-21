@@ -20,13 +20,13 @@ for path in glob.glob("requirements_*.txt"):
 
 setuptools.setup(
     name = "datatap",
-    version = "0.0.4",
+    version = "0.0.5",
     author = "Zensors' Dev Team",
     author_email = "dev-team@zensors.com",
     description = "Client library for dataTap",
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = "https://zensors.com",
+    url = "https://datatap.dev",
     packages = setuptools.find_packages(),
     package_data = { "": ["image/assets/*"], "datatap": ["py.typed"] },
     classifiers = [

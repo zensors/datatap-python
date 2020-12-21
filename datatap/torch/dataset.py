@@ -8,7 +8,7 @@ import torchvision.transforms.functional as TF
 from torch.utils.data import IterableDataset as TorchIterableDataset, get_worker_info # type: ignore
 
 from datatap.droplet import ImageAnnotation
-from datatap.api.entities import DatasetVersion
+from datatap.api.entities import Dataset
 
 class DatasetElement():
     """
@@ -101,21 +101,24 @@ class IterableDataset(TorchIterableDataset[DatasetElement]):
     `torchvision.transforms.functional.to_tensor` as the final step of the transform.
     """
 
-    _dataset: DatasetVersion
+    _dataset: Dataset
     _split: str
     _class_mapping: Dict[str, int]
     _class_names: Dict[int, str]
+    _device: torch.device
 
     def __init__(
         self,
-        dataset: DatasetVersion,
+        dataset: Dataset,
         split: str,
         class_mapping: Optional[Dict[str, int]] = None,
         image_transform: Callable[[PIL.Image.Image], torch.Tensor] = TF.to_tensor,
+        device: torch.device = torch.device("cpu")
     ):
         self._dataset = dataset
         self._split = split
         self._image_transform = image_transform
+        self._device = device
 
         template_classes = dataset.template.classes.keys()
         if class_mapping is not None:
@@ -152,28 +155,30 @@ class IterableDataset(TorchIterableDataset[DatasetElement]):
     def __iter__(self) -> Generator[DatasetElement, None, None]:
         for annotation in self._get_generator():
             img = annotation.image.get_pil_image(True).convert("RGB")
-            transformed_img = self._image_transform(img)
+            transformed_img = self._image_transform(img).to(self._device)
             h, w = transformed_img.shape[-2:]
 
             instance_boxes = [
                 (
-                    instance.bounding_box.p1.x * w,
-                    instance.bounding_box.p1.y * h,
-                    instance.bounding_box.p2.x * w,
-                    instance.bounding_box.p2.y * h,
+                    instance.bounding_box.rectangle.p1.x * w,
+                    instance.bounding_box.rectangle.p1.y * h,
+                    instance.bounding_box.rectangle.p2.x * w,
+                    instance.bounding_box.rectangle.p2.y * h,
                 )
                 for class_name in annotation.classes.keys()
                 for instance in annotation.classes[class_name].instances
+                if instance.bounding_box is not None
             ]
 
             instance_labels = [
                 self._class_mapping[class_name]
                 for class_name in annotation.classes.keys()
                 for _ in annotation.classes[class_name].instances
+                if class_name in self._class_mapping
             ]
 
-            target = torch.tensor(instance_boxes).reshape((-1, 4))
-            labels = torch.tensor(instance_labels, dtype = torch.int64)
+            target = torch.tensor(instance_boxes).reshape((-1, 4)).to(self._device)
+            labels = torch.tensor(instance_labels, dtype = torch.int64).to(self._device)
 
             element = DatasetElement(annotation, transformed_img, target, labels)
 

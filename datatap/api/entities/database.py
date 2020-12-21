@@ -1,9 +1,9 @@
 from __future__ import annotations
-from typing import List
+from typing import List, overload
 
 from datatap.utils import basic_repr
 
-from .dataset import DatasetVersion, Dataset
+from .repository import Repository
 from ..endpoints import ApiEndpoints
 from ..types import JsonDatabase, JsonDatabaseOptions
 
@@ -52,23 +52,30 @@ class Database:
         self.name = name
         self.connection_options = connection_options
 
-    def get_dataset_list(self) -> List[Dataset]:
+    def get_repository_list(self) -> List[Repository]:
         """
-        Returns a list of all `Dataset`s that are stored in this database.
+        Returns a list of all `Repository`s that are stored in this database.
         """
         return [
-            Dataset.from_json(self._endpoints, dataset_json)
-            for dataset_json in self._endpoints.dataset.list(self.uid)
+            Repository.from_json(self._endpoints, self.uid, repository_json)
+            for repository_json in self._endpoints.repository.list(self.uid)
         ]
 
-    def get_dataset_by_uid(self, dataset_uid: str) -> DatasetVersion:
+
+    @overload
+    def get_repository(self, slug: str) -> Repository: ...
+    @overload
+    def get_repository(self, namespace: str, name: str) -> Repository: ...
+    def get_repository(self, *args: str) -> Repository:
         """
-        Queries an individual `DatasetVersion` by UID.
+        Queries a `Repository` by its namespace and name, or via its slug (namespace/name).
         """
-        return DatasetVersion.from_json(
-            self._endpoints,
-            self._endpoints.dataset.query(self.uid, dataset_uid)
-        )
+        if len(args) == 1:
+            namespace, name = args[0].split("/")
+        else:
+            namespace, name = args
+
+        return Repository.from_json(self._endpoints, self.uid, self._endpoints.repository.query(self.uid, namespace, name))
 
     def __repr__(self):
         return basic_repr("Database", self.uid, name = self.name)

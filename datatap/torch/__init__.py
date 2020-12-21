@@ -42,10 +42,12 @@ _patch_all()
 
 from .dataset import DatasetElement, DatasetBatch, IterableDataset
 from .dataloader import create_dataloader
+from .utils import torch_to_image_annotation
 
 __all__ = [
     "DatasetElement",
     "DatasetBatch",
     "IterableDataset",
     "create_dataloader",
+    "torch_to_image_annotation",
 ]

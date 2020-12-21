@@ -1,24 +1,54 @@
 from __future__ import annotations
+from datatap.api.types.dataset import JsonDatasetRepository
 
-from typing import List, Optional
-from datatap.utils import basic_repr, OrNullish
+from typing import Generator, List, overload
 
-from .dataset_version import DatasetVersion
+from datatap.droplet import ImageAnnotation
+from datatap.template import ImageAnnotationTemplate
+from datatap.utils import basic_repr
+
 from ..endpoints import ApiEndpoints
 from ..types import JsonDataset
 
-class Dataset:
+class DatasetRepository:
     """
-    Represents a dataset that has been created with a given template and options.
-
-    If any versions of this dataset have been instantiated, then `latest_version`
-    will refer to the most recent one. All others will be found in `previous_values`.
+    An object representing the repository a dataset came from.
     """
-    _endpoints: ApiEndpoints
 
     name: str
     """
-    The name of this dataset.
+    The name of the repository.
+    """
+
+    namespace: str
+    """
+    The namespace of the repository.
+    """
+
+    @staticmethod
+    def from_json(json: JsonDatasetRepository) -> DatasetRepository:
+        """
+        Creates a new `DatasetRepository` from a `JsonDatasetRepository`.
+        """
+        return DatasetRepository(name = json["name"], namespace = json["namespace"])
+
+    def __init__(self, *, name: str, namespace: str):
+        self.name = name
+        self.namespace = namespace
+
+class Dataset:
+    """
+    Represents a concrete version of a dataset. Critically, `Dataset`s cannot be changed
+    once they're created.
+
+    For reproducable training, ensure that you store the specific `Dataset` used
+    during training.
+    """
+    _endpoints: ApiEndpoints
+
+    uid: str
+    """
+    The UID of this `Dataset`.
     """
 
     database: str
@@ -26,45 +56,77 @@ class Dataset:
     The UID of the database in which this dataset lives.
     """
 
-    latest_version: Optional[DatasetVersion]
+    repository: DatasetRepository
     """
-    The latest version of this dataset, or `None` if no versions exist.
+    The repository this dataset belongs to.
     """
 
-    previous_values: List[str]
+    splits: List[str]
     """
-    If more than one `DatasetVersion` has been built for this dataset, then `previous_values`
-    will hold the UIDs of all versions that are not the latest.
+    A list of all the splits that this dataset has. By default, this will be
+    `["training", "validation"]`.
+    """
+
+    template: ImageAnnotationTemplate
+    """
+    The `ImageAnnotationTemplate` that all annotations in this dataset version adhere to.
     """
 
     @staticmethod
     def from_json(endpoints: ApiEndpoints, json: JsonDataset) -> Dataset:
         """
-        Creates a `Dataset` from a `JsonDataset`.
+        Creates a new `Dataset` from a `JsonDataset`.
         """
         return Dataset(
             endpoints,
-            name = json["name"],
+            uid = json["uid"],
             database = json["database"],
-            latest_version = OrNullish.bind(json.get("dataset", None), lambda x: DatasetVersion.from_json(endpoints, x)),
-            previous_values = json["previousValues"]
+            repository = DatasetRepository.from_json(json["repository"]),
+            splits = json["splits"],
+            template = ImageAnnotationTemplate.from_json(json["template"])
         )
 
-    def __init__(self, endpoints: ApiEndpoints, *, name: str, database: str, latest_version: Optional[DatasetVersion], previous_values: List[str]):
+    def __init__(
+        self,
+        endpoints: ApiEndpoints,
+        uid: str,
+        *,
+        database: str,
+        repository: DatasetRepository,
+        splits: List[str],
+        template: ImageAnnotationTemplate
+    ):
         self._endpoints = endpoints
-        self.name = name
+        self.uid = uid
         self.database = database
-        self.latest_version = latest_version
-        self.previous_values = previous_values
+        self.repository = repository
+        self.splits = splits
+        self.template = template
 
-    def get_previous_datasets(self) -> List[DatasetVersion]:
+    @overload
+    def stream_split(self, split: str) -> Generator[ImageAnnotation, None, None]: ...
+    @overload
+    def stream_split(self, split: str, chunk: int, nchunks: int) -> Generator[ImageAnnotation, None, None]: ...
+    def stream_split(self, split: str, chunk: int = 0, nchunks: int = 1) -> Generator[ImageAnnotation, None, None]:
         """
-        Fetches all of the former dataset versions from the server.
+        Streams a specific split of this dataset from the database. All yielded annotations will be of type
+        `ImageAnnotation` and adhere to this dataset version's annotation template.
+
+        If `chunk` and `nchunks` are omitted, then the full split will be streamed. Otherwise, the split will be
+        broken into `nchunks` pieces, and only the chunk identified by `chunk` will be streamed.
         """
-        return [
-            DatasetVersion.from_json(self._endpoints, self._endpoints.dataset.query(self.database, dataset_uid))
-            for dataset_uid in self.previous_values
-        ]
+        for droplet in self._endpoints.dataset.stream_split(
+            database_uid = self.database,
+            namespace = self.repository.namespace,
+            name = self.repository.name,
+            tag = self.uid,
+            split = split,
+            chunk = chunk,
+            nchunks = nchunks,
+        ):
+            yield ImageAnnotation.from_json(droplet)
+
 
     def __repr__(self) -> str:
-        return basic_repr("Dataset", name = self.name, database = self.database, previous_values = self.previous_values, latest_version = self.latest_version)
+        return basic_repr("Dataset", self.uid, database = self.database, splits = self.splits)
+

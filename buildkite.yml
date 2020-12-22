@@ -48,7 +48,7 @@ steps:
       - "cd /build"
       - "echo '--- Installing Packages'"
       - "pip install -r requirements_torch.txt"
-      - "pip install -e '.[metrics,torch,tf]'"
+      - "pip install -e '.[metrics,torch]'"
       - "pip install pdoc3 awscli"
       - "echo '+++ Compiling Docs'"
       - "pdoc3 datatap --html"
@@ -64,5 +64,5 @@ steps:
   - label: ":github: Pushing to github"
     commands:
       - "git remote add gh git@github.com:Zensors/datatap-python.git || true"
-      - "git push gh ${BUILDKITE_BRANCH}"
+      - "git push gh HEAD:${BUILDKITE_BRANCH}"
     if: "build.branch !~ /^refs/"

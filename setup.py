@@ -20,7 +20,7 @@ for path in glob.glob("requirements_*.txt"):
 
 setuptools.setup(
     name = "datatap",
-    version = "0.0.5-2",
+    version = "0.0.5-3",
     author = "Zensors' Dev Team",
     author_email = "dev-team@zensors.com",
     description = "Client library for dataTap",

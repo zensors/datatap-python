@@ -5,7 +5,10 @@ import requests
 import functools
 from typing import Dict, Optional
 
-import tensorflow as tf
+try:
+    import tensorflow as tf
+except ImportError:
+    tf = {}
 
 from datatap.api.entities import Dataset
 

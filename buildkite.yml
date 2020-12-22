@@ -64,5 +64,5 @@ steps:
   - label: ":github: Pushing to github"
     commands:
       - "git remote add gh git@github.com:Zensors/datatap-python.git || true"
-      - "git push gh ${BUILDKITE_BRANCH}"
+      - "yes | git push gh ${BUILDKITE_BRANCH}"
     if: "build.branch !~ /^refs/"

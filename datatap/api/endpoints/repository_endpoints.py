@@ -19,4 +19,4 @@ class Repository(ApiNamespace):
         Queries the database for the repository with a given `namespace` and `name`, and
         returns the corresponding `JsonRepository` list.
         """
-        return self.get[JsonRepository](f"/database/{database_uid}/repository/{name}/{namespace}")
+        return self.get[JsonRepository](f"/database/{database_uid}/repository/{namespace}/{name}")

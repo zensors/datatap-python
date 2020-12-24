@@ -110,10 +110,10 @@ print("Available repositories:", [repo.name for repo in repository_list])
 # Additionally, all repositories have one dataset identified with `latest`,
 # which should refer to the most recent "canonical" dataset.
 #
-# For this example, we will use the `widerperson` repository, and the dataset
+# For this example, we will use the `wider-person` repository, and the dataset
 # identified as `latest`.
 
-repository = database.get_repository("public", "widerperson")
+repository = database.get_repository("_/wider-person")
 dataset = repository.get_dataset("latest")
 
 print("Loaded dataset:", dataset)

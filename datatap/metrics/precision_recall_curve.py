@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Sequence, TYPE_CHECKING, Any, List, NamedTuple, Optional, overload
+from typing import Iterable, Sequence, TYPE_CHECKING, Any, List, NamedTuple, Optional, cast, overload
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -124,7 +124,7 @@ class PrecisionRecallCurve:
 			true_positives = 0
 			false_positives = max(0, i + 1 - len(ground_truth_boxes))
 
-			for prediction_index, ground_truth_index in zip(prediction_indices, ground_truth_indices):
+			for prediction_index, ground_truth_index in zip(cast(Iterable[int], prediction_indices), cast(Iterable[int], ground_truth_indices)):
 				if (
 					iou_matrix[prediction_index, ground_truth_index] >= iou_threshold
 					and prediction_boxes[prediction_index].class_name == ground_truth_boxes[ground_truth_index].class_name

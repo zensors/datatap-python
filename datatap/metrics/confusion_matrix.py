@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Sequence, cast
+from typing import Any, Iterable, Mapping, Optional, Sequence, cast
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -73,7 +73,7 @@ class ConfusionMatrix:
 		remaining_ground_truth_boxes = set(ground_truth_boxes)
 		remaining_prediction_boxes = set(prediction_boxes)
 
-		for prediction_index, ground_truth_index in zip(prediction_indices, ground_truth_indices):
+		for prediction_index, ground_truth_index in zip(cast(Iterable[int], prediction_indices), cast(Iterable[int], ground_truth_indices)):
 			if iou_matrix[prediction_index, ground_truth_index] >= iou_threshold:
 				ground_truth_box = ground_truth_boxes[ground_truth_index]
 				prediction_box = prediction_boxes[prediction_index]

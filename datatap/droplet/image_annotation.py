@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Any, Callable, Dict, Mapping, Optional
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 from datatap.utils import Environment
 from typing_extensions import TypedDict
@@ -181,10 +181,10 @@ class ImageAnnotation:
 		visualization of this `ImageAnnotation`.
 		"""
 		params = {
-			"annotation": json.dumps(self.to_json())
+			"annotation": json.dumps(self.to_json(), separators = (",", ":"))
 		}
 
-		return f"{Environment.BASE_URI}/visualizer/single#{urlencode(params)}"
+		return f"{Environment.BASE_URI}/visualizer/single#{urlencode(params, quote_via = quote)}"
 
 	def get_comparison_url(self, other: ImageAnnotation) -> str:
 		"""
@@ -198,8 +198,8 @@ class ImageAnnotation:
 		image.
 		"""
 		params = {
-			"groundTruth": json.dumps(self.to_json()),
-			"proposal": json.dumps(other.to_json())
+			"groundTruth": json.dumps(self.to_json(), separators = (",", ":")),
+			"proposal": json.dumps(other.to_json(), separators = (",", ":"))
 		}
 
-		return f"{Environment.BASE_URI}/visualizer/compare#{urlencode(params)}"
+		return f"{Environment.BASE_URI}/visualizer/compare#{urlencode(params, quote_via = quote)}"

@@ -26,7 +26,7 @@ setuptools.setup(
     description = "Client library for dataTap",
     long_description = long_description,
     long_description_content_type = "text/markdown",
-    url = "https://datatap.dev",
+    url = "https://github.com/zensors/datatap-python", # pypi will add extra information if the url is the repo
     packages = setuptools.find_packages(),
     package_data = { "": ["image/assets/*"], "datatap": ["py.typed"] },
     classifiers = [
@@ -38,5 +38,6 @@ setuptools.setup(
     extras_require = extras_require,
     dependency_links = [
         "https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html"
-    ]
+    ],
+    license = open("./LICENSE").read()
 )

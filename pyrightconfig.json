@@ -12,6 +12,7 @@
 		"datatap/metrics",
 		"datatap/template",
 		"datatap/utils",
+		"examples",
 		"tests"
 	]
 }

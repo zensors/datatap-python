@@ -1,8 +1,7 @@
-palettable==3.3.0
-Flask==1.1.1
+palettable>=3.3.0
+Flask>=1.1.1
 Pillow>=7.1.0
-Shapely==1.7.0
-scipy==1.4.1
+Shapely>=1.7.0
+scipy>=1.4.1
 importlib-resources>=1.4.0
-zensors-ffmpeg-python
-boto3==1.15.14
+boto3>=1.15.14

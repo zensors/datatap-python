@@ -32,6 +32,7 @@ setuptools.setup(
     classifiers = [
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     ],
     python_requires = ">=3.7",
     install_requires = requirements,
@@ -39,5 +40,4 @@ setuptools.setup(
     dependency_links = [
         "https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html"
     ],
-    license = open("./LICENSE").read()
 )

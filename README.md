@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-    <img src="https://datatap.dev/static/header-image-9a06bbd4c01c2cd44501e0545e88cb2a.png" width="600">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/getting_started.gif" width="600">
 </p>
 
 <p align="center">

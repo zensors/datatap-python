@@ -9,10 +9,6 @@
 </p>
 
 <p align="center">
-    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/getting_started.gif" width="600">
-</p>
-
-<p align="center">
     The visual data management platform from <a href="https://zensors.com">Zensors</a>.
 </p>
 
@@ -41,7 +37,27 @@ Full documentation is available at [docs.datatap.dev](https://docs.datatap.dev/)
  - [x] 🧮 Rich ML utilities to compute PR-curves, confusion matrices, and accuracy metrics.
  - [x] 💽 Free access to a variety of open datasets.
 
-## Getting Started
+## Getting Started (Platform)
+
+To begin, select a dataset from the dataTap repository.
+
+<p align="left">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/getting_started.gif" width="600">
+</p>
+
+Then copy the starter code based on your library preference.
+
+<p align="left">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/copy-code.gif" width="600">
+</p>
+
+Paste the starter code and start training.
+
+<p align="left">
+    <img src="https://zensors-public-content.s3.us-east-2.amazonaws.com/start-training.gif" width="600">
+</p>
+
+## Getting Started (API)
 
 Install the client library.
 
@@ -65,6 +81,8 @@ coco = api.get_default_database().get_repository("_/coco")
 dataset = coco.get_dataset("latest")
 print("COCO: ", dataset)
 ```
+
+
 
 ## Data Streaming Example
 

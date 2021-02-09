@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Mapping, Optional
 from urllib.parse import quote, urlencode
 
 from datatap.utils import Environment
-from typing_extensions import TypedDict
+from typing_extensions import Literal, TypedDict
 
 from ..geometry import Mask, MaskJson
 from ..utils import basic_repr
@@ -16,6 +16,7 @@ from .multi_instance import MultiInstance
 
 
 class _ImageAnnotationJsonOptional(TypedDict, total = False):
+	uid: str
 	mask: MaskJson
 
 class ImageAnnotationJson(_ImageAnnotationJsonOptional, TypedDict):
@@ -23,6 +24,7 @@ class ImageAnnotationJson(_ImageAnnotationJsonOptional, TypedDict):
 	The serialized JSON representation of an image annotation.
 	"""
 
+	kind: Literal["ImageAnnotation"]
 	image: ImageJson
 	classes: Mapping[str, ClassAnnotationJson]
 
@@ -39,6 +41,11 @@ class ImageAnnotation:
 	classes: Mapping[str, ClassAnnotation]
 	"""
 	A mapping from class name to the annotations of that class.
+	"""
+
+	uid: Optional[str]
+	"""
+	A unique identifier for this image annotation.
 	"""
 
 	mask: Optional[Mask]
@@ -58,13 +65,22 @@ class ImageAnnotation:
 				class_name: ClassAnnotation.from_json(json["classes"][class_name])
 				for class_name in json["classes"]
 			},
-			mask = Mask.from_json(json["mask"]) if "mask" in json else None
+			mask = Mask.from_json(json["mask"]) if "mask" in json else None,
+			uid = json.get("uid")
 		)
 
-	def __init__(self, *, image: Image, classes: Mapping[str, ClassAnnotation], mask: Optional[Mask] = None):
+	def __init__(
+		self,
+		*,
+		image: Image,
+		classes: Mapping[str, ClassAnnotation],
+		mask: Optional[Mask] = None,
+		uid: Optional[str] = None
+	):
 		self.image = image
 		self.classes = classes
 		self.mask = mask
+		self.uid = uid
 
 	def filter_detections(
 		self,
@@ -127,6 +143,7 @@ class ImageAnnotation:
 	def __repr__(self) -> str:
 		return basic_repr(
 			"ImageAnnotation",
+			uid = self.uid,
 			image = self.image,
 			mask = self.mask,
 			classes = self.classes
@@ -163,6 +180,7 @@ class ImageAnnotation:
 		Serializes this image annotation into an `ImageAnnotationJson`.
 		"""
 		json: ImageAnnotationJson = {
+			"kind": "ImageAnnotation",
 			"image": self.image.to_json(),
 			"classes": {
 				name: class_annotation.to_json()
@@ -172,6 +190,9 @@ class ImageAnnotation:
 
 		if self.mask is not None:
 			json["mask"] = self.mask.to_json()
+
+		if self.uid is not None:
+			json["uid"] = self.uid
 
 		return json
 

@@ -49,7 +49,7 @@ steps:
       - "echo '--- Installing Packages'"
       - "pip install -r requirements_torch.txt"
       - "pip install -e '.[metrics,torch]'"
-      - "pip install pdoc3 awscli"
+      - "pip install pdoc3 awscli comet_ml"
       - "echo '+++ Compiling Docs'"
       - "pdoc3 datatap --html"
       - "echo '+++ Uploading Docs'"

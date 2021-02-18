@@ -43,7 +43,7 @@ class Experiment:
     ) -> None: ...
     def log_asset_data(
         self,
-        data: str | bytes,
+        data: Any,
         name: Optional[str] = ...,
         overwrite: bool = ...,
         step: Optional[int] = ...,

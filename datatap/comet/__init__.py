@@ -1,7 +1,14 @@
+from __future__ import annotations
+
 from typing import Sequence
 
-from comet_ml import APIExperiment, Experiment
-from comet_ml.exceptions import NotFound
+try:
+	from comet_ml import APIExperiment, Experiment
+	from comet_ml.exceptions import NotFound
+except ImportError:
+	from datatap.utils import pprint
+	pprint("{yellow}Unable to import comet_ml.")
+
 from datatap.api.entities import Dataset
 from datatap.droplet.image_annotation import ImageAnnotation
 

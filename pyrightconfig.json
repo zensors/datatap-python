@@ -6,6 +6,7 @@
 	"stubPath": "./typings",
 	"include": [
 		"datatap/api",
+		"datatap/comet",
 		"datatap/dataset",
 		"datatap/droplet",
 		"datatap/geometry",

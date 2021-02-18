@@ -6,6 +6,7 @@ from io import BufferedReader
 from typing_extensions import Literal
 
 class Experiment:
+    id: str
     context: str
 
     def __init__(

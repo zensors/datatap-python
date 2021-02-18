@@ -84,7 +84,7 @@ class Dataset(ApiNamespace):
 
         # Checks for an authoritative cache, using it if it exists.
         if path.exists(file_name):
-            def generator():
+            def cache_generator():
                 with open(file_name, "r") as f:
                     for line in f.readlines():
                         line = line.strip()
@@ -92,7 +92,7 @@ class Dataset(ApiNamespace):
                             continue
                         yield json.loads(line)
                 return
-            return generator()
+            return cache_generator()
 
 
         # `sync_queue` is used to synchronize startup and termination of the

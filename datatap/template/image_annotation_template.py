@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Mapping
 
-from typing_extensions import TypedDict
+from typing_extensions import Literal, TypedDict
 
 from ..utils import basic_repr
 from .class_annotation_template import ClassAnnotationTemplate, ClassAnnotationTemplateJson
@@ -12,6 +12,7 @@ class ImageAnnotationTemplateJson(TypedDict):
 	The serialized JSON representation of an image annotation template.
 	"""
 
+	kind: Literal["ImageAnnotationTemplate"]
 	classes: Dict[str, ClassAnnotationTemplateJson]
 
 class ImageAnnotationTemplate():
@@ -34,6 +35,7 @@ class ImageAnnotationTemplate():
 		Serializes this object to JSON.
 		"""
 		return {
+			"kind": "ImageAnnotationTemplate",
 			"classes": {
 				class_name: class_template.to_json()
 				for class_name, class_template in self.classes.items()

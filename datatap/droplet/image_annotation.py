@@ -101,7 +101,8 @@ class ImageAnnotation:
 					multi_instance_filter = multi_instance_filter
 				)
 				for class_name, class_annotation in self.classes.items()
-			}
+			},
+			uid = self.uid
 		)
 
 	def apply_bounding_box_confidence_threshold(self, threshold: float) -> ImageAnnotation:
@@ -172,7 +173,8 @@ class ImageAnnotation:
 		return ImageAnnotation(
 			image = self.image,
 			classes = classes,
-			mask = self.mask
+			mask = self.mask,
+			uid = self.uid if self.uid is not None else other.uid
 		)
 
 	def to_json(self) -> ImageAnnotationJson:

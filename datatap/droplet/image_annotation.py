@@ -150,13 +150,13 @@ class ImageAnnotation:
 			classes = self.classes
 		)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, ImageAnnotation):
+	def __eq__(self, other: ImageAnnotation) -> bool:
+		if not isinstance(other, ImageAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.image == other.image and self.classes == other.classes and self.mask == other.mask
 
-	def __add__(self, other: Any) -> ImageAnnotation:
-		if not isinstance(other, ImageAnnotation):
+	def __add__(self, other: ImageAnnotation) -> ImageAnnotation:
+		if not isinstance(other, ImageAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 
 		classes: Dict[str, ClassAnnotation] = {}

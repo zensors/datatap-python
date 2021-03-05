@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping, Optional, Sequence, cast
+from typing import Iterable, Mapping, Optional, Sequence, cast
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -117,7 +117,7 @@ class ConfusionMatrix:
 		self._add_detection("__background__", ground_truth_class, count)
 
 
-	def __add__(self, other: Any) -> ConfusionMatrix:
-		if isinstance(other, ConfusionMatrix):
+	def __add__(self, other: ConfusionMatrix) -> ConfusionMatrix:
+		if isinstance(other, ConfusionMatrix): # type: ignore - pyright complains about the isinstance check being redundant
 			return ConfusionMatrix(self.classes, cast(np.ndarray, self.matrix + other.matrix))
 		return NotImplemented

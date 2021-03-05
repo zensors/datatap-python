@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Optional
 
 from typing_extensions import TypedDict
 
@@ -72,8 +72,8 @@ class MultiInstance:
 			count = self.count
 		)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, MultiInstance):
+	def __eq__(self, other: MultiInstance) -> bool:
+		if not isinstance(other, MultiInstance): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.bounding_box == other.bounding_box and self.segmentation == other.segmentation and self.count == other.count
 

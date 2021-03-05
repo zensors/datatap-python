@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Optional
 
 from typing_extensions import TypedDict
 
@@ -63,8 +63,8 @@ class Keypoint:
 	def __repr__(self) -> str:
 		return basic_repr("Keypoint", self.point, occluded = self.occluded, confidence = self.confidence)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, Keypoint):
+	def __eq__(self, other: Keypoint) -> bool:
+		if not isinstance(other, Keypoint): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.point == other.point and self.occluded == other.occluded and self.confidence == other.confidence
 

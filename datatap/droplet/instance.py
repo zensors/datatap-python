@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional
+from typing import Dict, Mapping, Optional
 
 from typing_extensions import TypedDict
 
@@ -85,8 +85,8 @@ class Instance:
 			attributes = self.attributes
 		)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, Instance):
+	def __eq__(self, other: Instance) -> bool:
+		if not isinstance(other, Instance): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return (self.bounding_box == other.bounding_box and self.segmentation == other.segmentation
 			and self.keypoints == other.keypoints and self.attributes == other.attributes)

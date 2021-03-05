@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from io import BytesIO
-from typing import Any, Optional, Sequence
+from typing import Optional, Sequence
 
 import fsspec
 import PIL.Image
@@ -64,8 +64,8 @@ class Image:
 	def __repr__(self) -> str:
 		return basic_repr("Image", paths = self.paths)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, Image):
+	def __eq__(self, other: Image) -> bool:
+		if not isinstance(other, Image): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.paths == other.paths
 

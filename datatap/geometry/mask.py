@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datatap.geometry.point import Point
 
-from typing import Any, Generator, Sequence, Tuple, Union
+from typing import Generator, Sequence, Tuple, Union
 
 from .polygon import Polygon, PolygonJson
 from ..utils import basic_repr
@@ -63,9 +63,9 @@ class Mask:
 	def __repr__(self) -> str:
 		return basic_repr("Mask", self.polygons)
 
-	def __eq__(self, other: Any) -> bool:
+	def __eq__(self, other: Mask) -> bool:
 		# TODO(mdsavage): currently, this requires the polygons to be in the same order, not just represent the same mask
-		if not isinstance(other, Mask):
+		if not isinstance(other, Mask): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.polygons == other.polygons
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Optional
 
 from typing_extensions import TypedDict
 
@@ -51,8 +51,8 @@ class BoundingBox:
 	def __repr__(self) -> str:
 		return basic_repr("BoundingBox", self.rectangle, confidence = self.confidence)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, BoundingBox):
+	def __eq__(self, other: BoundingBox) -> bool:
+		if not isinstance(other, BoundingBox): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.rectangle == other.rectangle and self.confidence == other.confidence
 

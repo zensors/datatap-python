@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence
+from typing import Callable, Sequence
 
 from typing_extensions import TypedDict
 
@@ -75,13 +75,13 @@ class ClassAnnotation:
 	def __repr__(self) -> str:
 		return basic_repr("ClassAnnotation", instances = self.instances, multi_instances = self.multi_instances)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, ClassAnnotation):
+	def __eq__(self, other: ClassAnnotation) -> bool:
+		if not isinstance(other, ClassAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.instances == other.instances and self.multi_instances == other.multi_instances
 
-	def __add__(self, other: Any) -> ClassAnnotation:
-		if not isinstance(other, ClassAnnotation):
+	def __add__(self, other: ClassAnnotation) -> ClassAnnotation:
+		if not isinstance(other, ClassAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 
 		instances = list(self.instances) + list(other.instances)

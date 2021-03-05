@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Tuple, Union, overload
+from typing import Tuple, Union
 
 from ..utils import basic_repr
 
@@ -70,35 +70,23 @@ class Point:
 			return Point(self.x * factor[0], self.y * factor[1])
 		return Point(self.x * factor.x, self.x * factor.y)
 
-	@overload
-	def __add__(self, o: Point) -> Point: ...
-	def __add__(self, o: Any) -> Point:
-		if isinstance(o, Point):
+	def __add__(self, o: Point) -> Point:
+		if isinstance(o, Point): # type: ignore - pyright complains about the isinstance check being redundant
 			return Point(self.x + o.x, self.y + o.y)
 		return NotImplemented
 
-	@overload
-	def __sub__(self, o: Point) -> Point: ...
-	def __sub__(self, o: Any) -> Point:
-		if isinstance(o, Point):
+	def __sub__(self, o: Point) -> Point:
+		if isinstance(o, Point): # type: ignore - pyright complains about the isinstance check being redundant
 			return Point(self.x - o.x, self.y - o.y)
 		return NotImplemented
 
-	@overload
-	def __mul__(self, o: int) -> Point: ...
-	@overload
-	def __mul__(self, o: float) -> Point: ...
-	def __mul__(self, o: Any) -> Point:
-		if isinstance(o, (int, float)):
+	def __mul__(self, o: Union[int, float]) -> Point:
+		if isinstance(o, (int, float)): # type: ignore - pyright complains about the isinstance check being redundant
 			return Point(self.x * o, self.y * o)
 		return NotImplemented
 
-	@overload
-	def __truediv__(self, o: int) -> Point: ...
-	@overload
-	def __truediv__(self, o: float) -> Point: ...
-	def __truediv__(self, o: Any) -> Point:
-		if isinstance(o, (int, float)):
+	def __truediv__(self, o: Union[int, float]) -> Point:
+		if isinstance(o, (int, float)): # type: ignore - pyright complains about the isinstance check being redundant
 			return Point(self.x / o, self.y / o)
 		return NotImplemented
 
@@ -108,7 +96,7 @@ class Point:
 	def __hash__(self) -> int:
 		return hash((self.x, self.y))
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, Point):
-			return NotImplemented
-		return self.x == other.x and self.y == other.y
+	def __eq__(self, other: Point) -> bool:
+		if isinstance(other, Point): # type: ignore - pyright complains about the isinstance check being redundant
+			return self.x == other.x and self.y == other.y
+		return NotImplemented

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from shapely.geometry import box, Polygon as ShapelyPolygon
-from typing import Any, Sequence, Tuple, Union, overload
+from typing import Sequence, Tuple, Union
 
 from .point import Point, PointJson
 from ..utils import basic_repr
@@ -153,14 +153,12 @@ class Rectangle:
 	def __hash__(self) -> int:
 		return hash((self.p1, self.p2))
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, Rectangle):
+	def __eq__(self, other: Rectangle) -> bool:
+		if not isinstance(other, Rectangle): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.p1 == other.p1 and self.p2 == other.p2
 
-	@overload
-	def __mul__(self, o: int) -> Rectangle: ...
-	@overload
-	def __mul__(self, o: float) -> Rectangle: ...
-	def __mul__(self, o: Any) -> Rectangle:
-		return Rectangle(self.p1 * o, self.p2 * o)
+	def __mul__(self, o: Union[int, float]) -> Rectangle:
+		if isinstance(o, (int, float)): # type: ignore - pyright complains about the isinstance check being redundant
+			return Rectangle(self.p1 * o, self.p2 * o)
+		return NotImplemented

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Sequence, TYPE_CHECKING, Any, List, NamedTuple, Optional, cast, overload
+from typing import Iterable, Sequence, TYPE_CHECKING, List, NamedTuple, Optional, cast
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -32,10 +32,8 @@ class _DetectionEvent(NamedTuple):
 	true_positive_delta: int
 	false_positive_delta: int
 
-	@overload
-	def __add__(self, other: _DetectionEvent) -> _DetectionEvent: ...
-	def __add__(self, other: Any) -> _DetectionEvent:
-		if isinstance(other, _DetectionEvent):
+	def __add__(self, other: _DetectionEvent) -> _DetectionEvent:
+		if isinstance(other, _DetectionEvent): # type: ignore - pyright complains about the isinstance check being redundant
 			return _DetectionEvent(self.true_positive_delta + other.true_positive_delta, self.false_positive_delta + other.false_positive_delta)
 		return NotImplemented
 
@@ -182,10 +180,8 @@ class PrecisionRecallCurve:
 	def _add_ground_truth_positives(self, count: int) -> None:
 		self.ground_truth_positives += count
 
-	@overload
-	def __add__(self, other: PrecisionRecallCurve) -> PrecisionRecallCurve: ...
-	def __add__(self, other: Any) -> PrecisionRecallCurve:
-		if isinstance(other, PrecisionRecallCurve):
+	def __add__(self, other: PrecisionRecallCurve) -> PrecisionRecallCurve:
+		if isinstance(other, PrecisionRecallCurve): # type: ignore - pyright complains about the isinstance check being redundant
 			ret = self.clone()
 			ret._add_ground_truth_positives(other.ground_truth_positives)
 

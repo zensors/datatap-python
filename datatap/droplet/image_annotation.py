@@ -101,7 +101,8 @@ class ImageAnnotation:
 					multi_instance_filter = multi_instance_filter
 				)
 				for class_name, class_annotation in self.classes.items()
-			}
+			},
+			uid = self.uid
 		)
 
 	def apply_bounding_box_confidence_threshold(self, threshold: float) -> ImageAnnotation:
@@ -149,13 +150,13 @@ class ImageAnnotation:
 			classes = self.classes
 		)
 
-	def __eq__(self, other: Any) -> bool:
-		if not isinstance(other, ImageAnnotation):
+	def __eq__(self, other: ImageAnnotation) -> bool:
+		if not isinstance(other, ImageAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 		return self.image == other.image and self.classes == other.classes and self.mask == other.mask
 
-	def __add__(self, other: Any) -> ImageAnnotation:
-		if not isinstance(other, ImageAnnotation):
+	def __add__(self, other: ImageAnnotation) -> ImageAnnotation:
+		if not isinstance(other, ImageAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
 			return NotImplemented
 
 		classes: Dict[str, ClassAnnotation] = {}
@@ -172,7 +173,8 @@ class ImageAnnotation:
 		return ImageAnnotation(
 			image = self.image,
 			classes = classes,
-			mask = self.mask
+			mask = self.mask,
+			uid = self.uid if self.uid is not None else other.uid
 		)
 
 	def to_json(self) -> ImageAnnotationJson:

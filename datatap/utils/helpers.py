@@ -1,5 +1,9 @@
+import time
 from types import TracebackType
-from typing import List, Callable, Generator, Optional, TypeVar
+from typing import Dict, List, Callable, Generator, Optional, Tuple, TypeVar
+from contextlib import contextmanager
+
+from .print_helpers import pprint
 
 _T = TypeVar("_T")
 _U = TypeVar("_U")
@@ -41,3 +45,24 @@ def assert_one(item_list: List[_T]) -> _T:
         raise AssertionError(f"Expected one item in list, but found {len(item_list)}", item_list)
 
     return item_list[0]
+
+
+_timer_state: Dict[str, Tuple[float, int]] = {}
+@contextmanager
+def timer(name: str):
+    start = time.time()
+    yield None
+    end = time.time()
+
+    value = end - start
+    avg, count = _timer_state.get(name, (0.0, 0))
+    count += 1
+    avg += (value - avg) / count
+    _timer_state[name] = (avg, count)
+
+    pprint(
+        "{blue}{name} took {yellow}{value:1.3f}s{blue} for an average of {yellow}{avg:1.3f}s",
+        name = name,
+        value = value,
+        avg = avg,
+    )

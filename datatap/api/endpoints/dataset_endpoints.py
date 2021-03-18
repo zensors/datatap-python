@@ -1,19 +1,13 @@
 from __future__ import annotations
 from datatap.api.types.dataset import JsonDataset
 
-import json
 import tempfile
-import os
-import time
 import ctypes
-from os import path
-from typing import Generator, Optional
-from threading import Thread, Semaphore
-from queue import Queue
+from typing import Generator
 from multiprocessing import Array, set_start_method
 
 from datatap.droplet import ImageAnnotationJson
-from datatap.utils import DeletableGenerator, CacheGenerator
+from datatap.utils import CacheGenerator
 
 from .request import ApiNamespace
 

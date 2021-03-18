@@ -8,6 +8,11 @@ import fsspec
 import PIL.Image
 from typing_extensions import TypedDict
 
+try:
+	import boto3
+except ImportError:
+	boto3 = None
+
 from ..utils import basic_repr
 
 class ImageJson(TypedDict):
@@ -86,10 +91,25 @@ class Image:
 		for path in self.paths:
 			for i in range(attempts):
 				try:
-					with fsspec.open(path) as f:
-						pil_image = PIL.Image.open(BytesIO(f.read()))
-						# self._pil_image = pil_image # TODO(mdsavage): figure out if/how we can reenable caching
-						return pil_image
+					scheme, file_name, *_ = path.split(":")
+					if scheme.lower() == "s3" and boto3 is not None:
+						bucket_name, *path_components = [
+							component
+							for component in file_name.split("/")
+							if component != ""
+						]
+						path_name = "/".join(path_components)
+
+						s3 = boto3.resource("s3") # type: ignore
+						file_obj = s3.Object(bucket_name, path_name) # type: ignore
+						data: bytes = file_obj.get()["Body"].read() # type: ignore
+					else:
+						with fsspec.open(path) as f:
+							data = f.read()
+
+					pil_image = PIL.Image.open(BytesIO(data))
+					# self._pil_image = pil_image # TODO(mdsavage): figure out if/how we can reenable caching
+					return pil_image
 				except Exception as e:
 					if not quiet:
 						print(f"Cannot load image {path}, with error {str(e)}, attempt ({i + 1}/{attempts})", file = sys.stderr)

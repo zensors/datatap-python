@@ -228,16 +228,18 @@ def convert_keypoints(
 	"""
 
 	# Ensure that the given instance/category have keypoints
-	assert coco["keypoints"] is not None
-	assert category["keypoints"] is not None
+	coco_keypoints = coco.get("keypoints")
+	category_keypoints = category.get("keypoints")
+	assert coco_keypoints is not None
+	assert category_keypoints is not None
 
 	return {
 		kp_name: convert_keypoint(
-			coco["keypoints"][3 * i : 3 * (i + 1)],
+			coco_keypoints[3 * i : 3 * (i + 1)],
 			image,
 			options
 		)
-		for i, kp_name in enumerate(category["keypoints"])
+		for i, kp_name in enumerate(category_keypoints)
 	}
 
 def convert_instance(
@@ -254,7 +256,7 @@ def convert_instance(
 		return Instance(
 			bounding_box = convert_bounding_box(coco["bbox"], image, options),
 			segmentation = convert_mask(coco["segmentation"], image, options),
-			keypoints = convert_keypoints(coco, image, category, options) if "keypoints" in coco else None
+			keypoints = convert_keypoints(coco, image, category, options) if coco.get("keypoints") is not None else None
 		)
 	except Exception as e:
 		raise Exception("Failed processing instance {}".format(coco["id"])) from e

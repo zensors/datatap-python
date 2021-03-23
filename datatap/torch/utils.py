@@ -1,5 +1,5 @@
 from datatap.droplet.bounding_box import BoundingBox
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import torch
 import torchvision.transforms.functional as TF
@@ -24,6 +24,7 @@ def torch_to_image_annotation(
     boxes: torch.Tensor,
     scores: torch.Tensor,
     serialize_image: bool = False,
+    uid: Optional[str] = None,
 ) -> ImageAnnotation:
     """
     Creates an `ImageAnnotation` from a canonical tensor representation.
@@ -75,6 +76,7 @@ def torch_to_image_annotation(
     # Finally, construct the image annotation
 
     return ImageAnnotation(
+        uid = uid,
         image = droplet_image,
         classes = {
             cls: ClassAnnotation(instances = instances, multi_instances = [])

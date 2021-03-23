@@ -6,9 +6,10 @@ steps:
       - "cp -R . /build"
       - "cd /build"
       - "echo '--- Installing Packages'"
+      - "pip install -r dev_requirements.txt"
       - "pip install -r requirements_torch.txt"
       - "pip install -e '.[metrics,torch]'"
-      - "yarn global add pyright"
+      - "yarn global add 'pyright@1.1.123'"
       - "echo '+++ Running Pyright'"
       - "pyright"
     if: build.message !~ /skip tests/

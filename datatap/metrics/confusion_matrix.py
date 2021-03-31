@@ -1,6 +1,7 @@
 from __future__ import annotations
+from collections import defaultdict
 
-from typing import Iterable, Mapping, Optional, Sequence, cast
+from typing import DefaultDict, Iterable, Mapping, Optional, Sequence, cast
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -70,22 +71,31 @@ class ConfusionMatrix:
 		], ndmin = 2)
 
 		prediction_indices, ground_truth_indices = linear_sum_assignment(iou_matrix, maximize = True)
-		remaining_ground_truth_boxes = set(ground_truth_boxes)
-		remaining_prediction_boxes = set(prediction_boxes)
+
+		unmatched_ground_truth_box_counts: DefaultDict[str, int] = defaultdict(lambda: 0)
+		unmatched_prediction_box_counts: DefaultDict[str, int] = defaultdict(lambda: 0)
+
+		for box in ground_truth_boxes:
+			unmatched_ground_truth_box_counts[box.class_name] += 1
+
+		for box in prediction_boxes:
+			unmatched_prediction_box_counts[box.class_name] += 1
 
 		for prediction_index, ground_truth_index in zip(cast(Iterable[int], prediction_indices), cast(Iterable[int], ground_truth_indices)):
 			if iou_matrix[prediction_index, ground_truth_index] >= iou_threshold:
 				ground_truth_box = ground_truth_boxes[ground_truth_index]
 				prediction_box = prediction_boxes[prediction_index]
 				self._add_detection(ground_truth_box.class_name, prediction_box.class_name)
-				remaining_ground_truth_boxes.remove(ground_truth_box)
-				remaining_prediction_boxes.remove(prediction_box)
+				unmatched_ground_truth_box_counts[ground_truth_box.class_name] -= 1
+				unmatched_prediction_box_counts[prediction_box.class_name] -= 1
 
-		for ground_truth_box in remaining_ground_truth_boxes:
-			self._add_false_negative(ground_truth_box.class_name)
+		for class_name, count in unmatched_ground_truth_box_counts.items():
+			if count > 0:
+				self._add_false_negative(class_name, count = count)
 
-		for prediction_box in remaining_prediction_boxes:
-			self._add_false_positive(prediction_box.class_name)
+		for class_name, count in unmatched_prediction_box_counts.items():
+			if count > 0:
+				self._add_false_positive(class_name, count = count)
 
 	def batch_add_annotation(
 		self: ConfusionMatrix,

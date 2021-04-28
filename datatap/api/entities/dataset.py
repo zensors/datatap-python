@@ -126,7 +126,14 @@ class Dataset:
         ):
             yield ImageAnnotation.from_json(droplet)
 
+    def get_stable_identifier(self) -> str:
+        return f"{self.repository.namespace}/{self.repository.name}:{self.uid}"
 
     def __repr__(self) -> str:
-        return basic_repr("Dataset", self.uid, database = self.database, splits = self.splits)
+        return basic_repr(
+            "Dataset",
+            self.get_stable_identifier(),
+            database = self.database,
+            splits = self.splits
+        )
 

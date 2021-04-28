@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Optional, Sequence
 
 try:
 	from comet_ml import APIExperiment, Experiment
@@ -20,6 +20,9 @@ def init_experiment(experiment: Experiment, dataset: Dataset):
 	"""
 	api_experiment = APIExperiment(previous_experiment = experiment.id)
 
+	if get_dataset(experiment) is None:
+		log_dataset(experiment, dataset)
+
 	try:
 		api_experiment.get_asset("datatap/template.json")
 	except NotFound:
@@ -32,6 +35,20 @@ def init_experiment(experiment: Experiment, dataset: Dataset):
 			dataset.template.to_json(),
 			name = "datatap/template.json"
 		)
+
+def log_dataset(experiment: Experiment, dataset: Dataset):
+	experiment.log_other("datatap-dataset", dataset.get_stable_identifier())
+
+def get_dataset(experiment: Experiment) -> Optional[str]:
+	api_experiment = APIExperiment(previous_experiment = experiment.id)
+	others = api_experiment.get_others_summary()
+
+	try:
+		[metric] = [other for other in others if other["name"] == "datatap-dataset"]
+		return metric["valueCurrent"]
+	except KeyError:
+		return None
+
 
 def log_validation_proposals(experiment: Experiment, proposals: Sequence[ImageAnnotation]):
 	experiment.log_asset_data(

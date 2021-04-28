@@ -110,6 +110,15 @@ class Experiment:
         prefix: Optional[str] = ...,
         step: Optional[int] = ...,
     ) -> None: ...
+    def log_other(
+        self,
+        key: str,
+        value: str,
+    ) -> None: ...
+    def get_other(
+        self,
+        key: str
+    ) -> str: ...
 
     @contextmanager
-    def context_manager(name: str) -> Iterator[Experiment]: ...
+    def context_manager(self, name: str) -> Iterator[Experiment]: ...

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Generator, List, Optional, Union, overload
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union, overload
 
 import torch
 import PIL.Image
@@ -152,7 +152,7 @@ class IterableDataset(TorchIterableDataset[DatasetElement]):
 
             return self._dataset.stream_split(self._split, worker_id, num_workers)
 
-    def __iter__(self) -> Generator[DatasetElement, None, None]:
+    def __iter__(self) -> Iterator[DatasetElement]:
         for annotation in self._get_generator():
             img = annotation.image.get_pil_image(True).convert("RGB")
             transformed_img = self._image_transform(img).to(self._device)

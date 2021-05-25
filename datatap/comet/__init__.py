@@ -42,13 +42,12 @@ def log_dataset(experiment: Experiment, dataset: Dataset):
 def get_dataset(experiment: Experiment) -> Optional[str]:
 	api_experiment = APIExperiment(previous_experiment = experiment.id)
 	others = api_experiment.get_others_summary()
+	dataset_metrics = [other for other in others if other["name"] == "datatap-dataset"]
 
-	try:
-		[metric] = [other for other in others if other["name"] == "datatap-dataset"]
-		return metric["valueCurrent"]
-	except KeyError:
+	if len(dataset_metrics) == 0:
 		return None
 
+	return dataset_metrics[0].get("valueCurrent", None)
 
 def log_validation_proposals(experiment: Experiment, proposals: Sequence[ImageAnnotation]):
 	experiment.log_asset_data(

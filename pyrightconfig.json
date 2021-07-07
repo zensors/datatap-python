@@ -10,10 +10,10 @@
 		"datatap/dataset",
 		"datatap/droplet",
 		"datatap/geometry",
-		"datatap/metrics",
+		// "datatap/metrics",
 		"datatap/template",
 		"datatap/utils",
-		"examples",
-		"tests"
+		// "examples",
+		// "tests"
 	]
 }

@@ -18,6 +18,7 @@ from .multi_instance import MultiInstance
 class _ImageAnnotationJsonOptional(TypedDict, total = False):
 	uid: str
 	mask: MaskJson
+	metadata: Mapping[str, Any]
 
 class ImageAnnotationJson(_ImageAnnotationJsonOptional, TypedDict):
 	"""
@@ -54,6 +55,11 @@ class ImageAnnotation:
 	features within the mask have been annotated.
 	"""
 
+	metadata: Optional[Mapping[str, Any]]
+	"""
+	An optional field for storing metadata on the annotation.
+	"""
+
 	@staticmethod
 	def from_json(json: Mapping[str, Any]) -> ImageAnnotation:
 		"""
@@ -66,7 +72,8 @@ class ImageAnnotation:
 				for class_name in json["classes"]
 			},
 			mask = Mask.from_json(json["mask"]) if "mask" in json else None,
-			uid = json.get("uid")
+			uid = json.get("uid"),
+			metadata = json.get("metadata")
 		)
 
 	def __init__(
@@ -75,12 +82,14 @@ class ImageAnnotation:
 		image: Image,
 		classes: Mapping[str, ClassAnnotation],
 		mask: Optional[Mask] = None,
-		uid: Optional[str] = None
+		uid: Optional[str] = None,
+		metadata: Optional[Mapping[str, Any]] = None
 	):
 		self.image = image
 		self.classes = classes
 		self.mask = mask
 		self.uid = uid
+		self.metadata = metadata
 
 	def filter_detections(
 		self,
@@ -102,7 +111,8 @@ class ImageAnnotation:
 				)
 				for class_name, class_annotation in self.classes.items()
 			},
-			uid = self.uid
+			uid = self.uid,
+			metadata = self.metadata
 		)
 
 	def apply_bounding_box_confidence_threshold(self, threshold: float) -> ImageAnnotation:
@@ -141,13 +151,26 @@ class ImageAnnotation:
 			)
 		)
 
+	def apply_metadata(self, metadata: Mapping[str, Any]) -> ImageAnnotation:
+		"""
+		Returns a new image annotation with the supplied metadata.
+		"""
+		return ImageAnnotation(
+			image = self.image,
+			mask = self.mask,
+			classes = self.classes,
+			uid = self.uid,
+			metadata = metadata
+		)
+
 	def __repr__(self) -> str:
 		return basic_repr(
 			"ImageAnnotation",
 			uid = self.uid,
 			image = self.image,
 			mask = self.mask,
-			classes = self.classes
+			classes = self.classes,
+			metadata = self.metadata
 		)
 
 	def __eq__(self, other: ImageAnnotation) -> bool:
@@ -174,7 +197,8 @@ class ImageAnnotation:
 			image = self.image,
 			classes = classes,
 			mask = self.mask,
-			uid = self.uid if self.uid is not None else other.uid
+			uid = self.uid if self.uid is not None else other.uid,
+			metadata = self.metadata
 		)
 
 	def to_json(self) -> ImageAnnotationJson:
@@ -195,6 +219,9 @@ class ImageAnnotation:
 
 		if self.uid is not None:
 			json["uid"] = self.uid
+
+		if self.metadata is not None:
+			json["metadata"] = self.metadata
 
 		return json
 

@@ -15,7 +15,10 @@ except ImportError:
 
 from ..utils import basic_repr
 
-class ImageJson(TypedDict):
+class _ImageJsonOptional(TypedDict, total = False):
+	uid: str
+
+class ImageJson(_ImageJsonOptional, TypedDict):
 	"""
 	The serialized JSON representation of an `Image`.
 	"""
@@ -26,6 +29,11 @@ class Image:
 	The `Image` class contains information about what image was
 	labeled by a given annotation. It also includes utilities
 	for loading and manipulating images.
+	"""
+
+	uid: Optional[str]
+	"""
+	A unique ID for this image.
 	"""
 
 	paths: Sequence[str]
@@ -47,7 +55,7 @@ class Image:
 		"""
 		Creates an `Image` from an `ImageJson`.
 		"""
-		return Image(paths = json["paths"])
+		return Image(uid = json.get("uid", None), paths = json["paths"])
 
 	@staticmethod
 	def from_pil(pil_image: PIL.Image.Image) -> Image:
@@ -62,12 +70,13 @@ class Image:
 		image._pil_image = pil_image
 		return image
 
-	def __init__(self, *, paths: Sequence[str]):
+	def __init__(self, *, uid: Optional[str] = None, paths: Sequence[str]):
+		self.uid = uid
 		self.paths = paths
 		self._pil_image = None
 
 	def __repr__(self) -> str:
-		return basic_repr("Image", paths = self.paths)
+		return basic_repr("Image", uid = self.uid, paths = self.paths)
 
 	def __eq__(self, other: Image) -> bool:
 		if not isinstance(other, Image): # type: ignore - pyright complains about the isinstance check being redundant
@@ -120,6 +129,11 @@ class Image:
 		"""
 		Serializes this `Image` into an `ImageJson`.
 		"""
-		return {
+		json: ImageJson = {
 			"paths": self.paths
 		}
+
+		if self.uid is not None:
+			json["uid"] = self.uid
+
+		return json

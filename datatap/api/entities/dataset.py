@@ -119,7 +119,7 @@ class Dataset:
             database_uid = self.database,
             namespace = self.repository.namespace,
             name = self.repository.name,
-            tag = self.uid,
+            uid = self.uid,
             split = split,
             chunk = chunk,
             nchunks = nchunks,

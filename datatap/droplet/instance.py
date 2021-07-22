@@ -5,6 +5,7 @@ from typing import Dict, Mapping, Optional
 from typing_extensions import TypedDict
 
 from ..utils import basic_repr
+from .attributes import AttributeValues, AttributeValuesJson
 from .bounding_box import BoundingBox, BoundingBoxJson
 from .keypoint import Keypoint, KeypointJson
 from .segmentation import Segmentation, SegmentationJson
@@ -17,7 +18,7 @@ class InstanceJson(TypedDict, total = False):
 	boundingBox: BoundingBoxJson
 	segmentation: SegmentationJson
 	keypoints: Mapping[str, Optional[KeypointJson]]
-	attributes: Mapping[str, str]
+	attributes: Mapping[str, AttributeValuesJson]
 
 class Instance:
 	"""
@@ -42,7 +43,7 @@ class Instance:
 	inferrable position in the image).
 	"""
 
-	attributes: Optional[Mapping[str, str]]
+	attributes: Optional[Mapping[str, AttributeValues]]
 	"""
 	A mapping from attribute name to value.
 	"""
@@ -52,7 +53,6 @@ class Instance:
 		"""
 		Creates an `Instance` from an `InstanceJson`.
 		"""
-
 		return Instance(
 			bounding_box = BoundingBox.from_json(json["boundingBox"]) if "boundingBox" in json else None,
 			segmentation = Segmentation.from_json(json["segmentation"]) if "segmentation" in json else None,
@@ -60,7 +60,9 @@ class Instance:
 				name: Keypoint.from_json(keypoint) if keypoint is not None else None
 				for name, keypoint in json["keypoints"].items()
 			} if "keypoints" in json else None,
-			attributes = json.get("attributes")
+			attributes = {
+				k: AttributeValues.from_json(v) for k, v in json["attributes"].items()
+			} if "attributes" in json else None
 		)
 
 	def __init__(
@@ -69,7 +71,7 @@ class Instance:
 		bounding_box: Optional[BoundingBox] = None,
 		segmentation: Optional[Segmentation] = None,
 		keypoints: Optional[Mapping[str, Optional[Keypoint]]] = None,
-		attributes: Optional[Mapping[str, str]] = None
+		attributes: Optional[Mapping[str, AttributeValues]] = None
 	):
 		self.bounding_box = bounding_box
 		self.segmentation = segmentation
@@ -112,6 +114,8 @@ class Instance:
 			json["keypoints"] = keypoints
 
 		if self.attributes is not None:
-			json["attributes"] = self.attributes
+			json["attributes"] = {
+				k: v.to_json() for k, v in self.attributes.items()
+			}
 
 		return json

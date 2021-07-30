@@ -33,7 +33,7 @@ class Dataset(ApiNamespace):
         database_uid: str,
         namespace: str,
         name: str,
-        tag: str,
+        uid: str,
         split: str,
         chunk: int,
         nchunks: int
@@ -48,12 +48,12 @@ class Dataset(ApiNamespace):
         if chunk < 0 or chunk >= nchunks:
             raise Exception(f"Invalid chunk specification. {chunk} must be in the range [0, {nchunks})")
 
-        dir_name = f"{process_directory}/{namespace}-{name}-{split}-{nchunks}"
+        dir_name = f"{process_directory}/{namespace}-{name}-{uid}-{split}-{nchunks}"
         file_name = f"{dir_name}/chunk-{chunk}.jsonl"
 
         def create_stream():
             return self.stream[ImageAnnotationJson](
-                f"/database/{database_uid}/repository/{namespace}/{name}/{tag}/split/{split}/stream",
+                f"/database/{database_uid}/repository/{namespace}/{name}/{uid}/split/{split}/stream",
                 { "chunk": str(chunk), "nchunks": str(nchunks) }
             )
 

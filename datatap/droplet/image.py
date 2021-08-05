@@ -4,7 +4,6 @@ import sys
 from io import BytesIO
 from typing import Optional, Sequence
 
-import fsspec
 import PIL.Image
 from typing_extensions import TypedDict
 
@@ -12,6 +11,11 @@ try:
 	import boto3
 except ImportError:
 	boto3 = None
+
+try:
+	import requests
+except ImportError:
+	requests = None
 
 from ..utils import basic_repr
 
@@ -41,11 +45,7 @@ class Image:
 	A sequence of URIs where this image can be found. The loader
 	will try them in order until it finds one it can load.
 
-	Loading is performed by [fsspec](https://filesystem-spec.readthedocs.io/en/latest/api.html).
-
-	Supported schemes include `http(s):`, `file:`, and `ftp:`, among others.
-	Some protocols may require additional packages to be installed (such as
-	`s3fs` for the `s3:` scheme).
+	Supported schemes include `http(s):`, `s3:`
 	"""
 
 	_pil_image: Optional[PIL.Image.Image]
@@ -112,9 +112,11 @@ class Image:
 						s3 = boto3.resource("s3") # type: ignore
 						file_obj = s3.Object(bucket_name, path_name) # type: ignore
 						data: bytes = file_obj.get()["Body"].read() # type: ignore
+					elif scheme.lower() in ["http", "https"] and requests is not None:
+						response = requests.get(path)
+						data = response.content
 					else:
-						with fsspec.open(path) as f:
-							data = f.read()
+						raise NotImplementedError(f"Unsupported scheme: {scheme}")
 
 					pil_image = PIL.Image.open(BytesIO(data))
 					# self._pil_image = pil_image # TODO(mdsavage): figure out if/how we can reenable caching

@@ -47,20 +47,20 @@ class AttributeValues:
 			return AttributeValues([AttributeValue(json)])
 		return AttributeValues([AttributeValue.from_json(c) for c in json])
 
-	def __init__(self, candidates: Sequence[AttributeValue]):
-		self.candidates = candidates
+	def __init__(self, content: Sequence[AttributeValue]):
+		self.content = content
 
 	def __repr__(self) -> str:
-		return basic_repr("AttributeValues", self.candidates)
+		return basic_repr("AttributeValues", self.content)
 
 	def to_json(self) -> Sequence[AttributeValueJson]:
-		return [c.to_json() for c in self.candidates]
+		return [c.to_json() for c in self.content]
 
 	def most_likely(self) -> Optional[AttributeValue]:
 		"""
 		Returns the most likely value of this specific attribute
 		"""
-		if len(self.candidates) == 0:
+		if len(self.content) == 0:
 			return None
 
-		return max(self.candidates, key=lambda c: c.confidence or 1.0)
+		return max(self.content, key=lambda c: c.confidence or 1.0)

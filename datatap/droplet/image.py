@@ -83,20 +83,17 @@ class Image:
 			return NotImplemented
 		return self.paths == other.paths
 
-	# TODO(mdsavage): consider using functools.cache here if we upgrade to Python >= 3.9
-	def get_pil_image(self, quiet: bool = False, attempts: int = 3) -> PIL.Image.Image:
+	def load(self, quiet: bool = False, attempts: int = 3) -> BytesIO:
 		"""
-		Attempts to load the image specified by this reference. Resolution happpens in this order:
+		Attempts to load the image file specified by this reference.
+		Resolution happpens in this order:
 
 		1. Load from an internal cache (either from a previous load, or from `from_pil`)
 		2. Try loading every path in order, returning once one loads
 
-		Warning! `get_pil_image` may attempt to read from the local file system or from private
+		Warning! `load` may attempt to read from the local file system or from private
 		networks. Please ensure that the annotation you are loading is trusted.
 		"""
-		if self._pil_image is not None:
-			return self._pil_image
-
 		for path in self.paths:
 			for i in range(attempts):
 				try:
@@ -118,14 +115,28 @@ class Image:
 					else:
 						raise NotImplementedError(f"Unsupported scheme: {scheme}")
 
-					pil_image = PIL.Image.open(BytesIO(data))
-					# self._pil_image = pil_image # TODO(mdsavage): figure out if/how we can reenable caching
-					return pil_image
+					return BytesIO(data)
 				except Exception as e:
 					if not quiet:
 						print(f"Cannot load image {path}, with error {str(e)}, attempt ({i + 1}/{attempts})", file = sys.stderr)
 
 		raise FileNotFoundError("All paths for image failed to load", self.paths)
+
+	# TODO(mdsavage): consider using functools.cache here if we upgrade to Python >= 3.9
+	def get_pil_image(self, quiet: bool = False, attempts: int = 3) -> PIL.Image.Image:
+		"""
+		Attempts to load the image specified by this reference. Resolution happpens in this order:
+
+		1. Load from an internal cache (either from a previous load, or from `from_pil`)
+		2. Try loading every path in order, returning once one loads
+
+		Warning! `get_pil_image` may attempt to read from the local file system or from private
+		networks. Please ensure that the annotation you are loading is trusted.
+		"""
+		if self._pil_image is not None:
+			return self._pil_image
+
+		return PIL.Image.open(self.load(quiet, attempts))
 
 	def to_json(self) -> ImageJson:
 		"""

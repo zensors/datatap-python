@@ -83,7 +83,7 @@ class Image:
 			return NotImplemented
 		return self.paths == other.paths
 
-	def load(self, quiet: bool = False, attempts: int = 3) -> BytesIO:
+	def load(self, quiet: bool = False, attempts: int = 3, allow_local: bool = False) -> BytesIO:
 		"""
 		Attempts to load the image file specified by this reference.
 		Resolution happpens in this order:
@@ -112,6 +112,9 @@ class Image:
 					elif scheme.lower() in ["http", "https"] and requests is not None:
 						response = requests.get(path)
 						data = response.content
+					elif scheme.lower() == "file" and allow_local:
+						with open(file_name, "rb") as file_obj:
+							data = file_obj.read()
 					else:
 						raise NotImplementedError(f"Unsupported scheme: {scheme}")
 
@@ -123,7 +126,7 @@ class Image:
 		raise FileNotFoundError("All paths for image failed to load", self.paths)
 
 	# TODO(mdsavage): consider using functools.cache here if we upgrade to Python >= 3.9
-	def get_pil_image(self, quiet: bool = False, attempts: int = 3) -> PIL.Image.Image:
+	def get_pil_image(self, quiet: bool = False, attempts: int = 3, allow_local: bool = False) -> PIL.Image.Image:
 		"""
 		Attempts to load the image specified by this reference. Resolution happpens in this order:
 
@@ -136,7 +139,7 @@ class Image:
 		if self._pil_image is not None:
 			return self._pil_image
 
-		return PIL.Image.open(self.load(quiet, attempts))
+		return PIL.Image.open(self.load(quiet, attempts, allow_local))
 
 	def to_json(self) -> ImageJson:
 		"""

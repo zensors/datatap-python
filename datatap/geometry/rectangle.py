@@ -119,6 +119,12 @@ class Rectangle:
 		"""
 		return Rectangle(self.p1.scale(factor), self.p2.scale(factor))
 
+	def center(self) -> Point:
+		"""
+		Computes the center of this rectangle.
+		"""
+		return Point((self.p1.x + self.p2.x) / 2, (self.p1.y + self.p2.y) / 2)
+
 	def scale_from_center(self, factor: Union[float, int, Tuple[float, float], Point]) -> Rectangle:
 		"""
 		Resizes the rectangle according to `factor`, though translates it so
@@ -128,7 +134,7 @@ class Rectangle:
 		`Point`), in which case the rectangle will be scaled independently on
 		each axis.
 		"""
-		center = (self.p1 + self.p2) / 2
+		center = self.center()
 		return Rectangle(
 			(self.p1 - center).scale(factor) + center,
 			(self.p2 - center).scale(factor) + center

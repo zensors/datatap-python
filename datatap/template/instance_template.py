@@ -12,6 +12,7 @@ class InstanceTemplateJson(TypedDict, total=False):
 	The serialized JSON representation of an instance template.
 	"""
 
+	id: bool
 	boundingBox: bool
 	segmentation: bool
 	keypoints: List[str]
@@ -20,6 +21,13 @@ class InstanceTemplateJson(TypedDict, total=False):
 class InstanceTemplate():
 	"""
 	Describes how an individual instance is structured.
+	"""
+
+	id: bool
+	"""
+	If `id` is `True`, then all corresponding `Instance`s will have an ID
+	that uniquely identifies the object represented by the instance in the
+	context of the containing annotation.
 	"""
 
 	bounding_box: bool
@@ -51,11 +59,13 @@ class InstanceTemplate():
 	def __init__(
 		self,
 		*,
+		id: bool = False,
 		bounding_box: bool = False,
 		segmentation: bool = False,
 		keypoints: AbstractSet[str] = set(),
 		attributes: Mapping[str, AbstractSet[str]] = dict(),
 	):
+		self.id = id
 		self.bounding_box = bounding_box
 		self.segmentation = segmentation
 		self.keypoints = keypoints
@@ -67,6 +77,7 @@ class InstanceTemplate():
 		"""
 		json = InstanceTemplateJson()
 
+		if self.id: json["id"] = True
 		if self.bounding_box: json["boundingBox"] = True
 		if self.segmentation: json["segmentation"] = True
 		if len(self.keypoints) > 0: json["keypoints"] = list(self.keypoints)
@@ -79,6 +90,7 @@ class InstanceTemplate():
 		"""
 		Deserializes a JSON object as an `InstanceTemplate`.
 		"""
+		id = json.get("id", False)
 		bounding_box = json.get("boundingBox", False)
 		segmentation = json.get("segmentation", False)
 		keypoints = set(json.get("keypoints", []))
@@ -87,6 +99,7 @@ class InstanceTemplate():
 			for key, values in json.get("attributes", {}).items()
 		}
 		return InstanceTemplate(
+			id = id,
 			bounding_box=bounding_box,
 			segmentation=segmentation,
 			keypoints=keypoints,
@@ -96,6 +109,7 @@ class InstanceTemplate():
 	def __repr__(self) -> str:
 		return basic_repr(
 			"InstanceTemplate",
+			id = self.id,
 			bounding_box = self.bounding_box,
 			segmentation = self.segmentation,
 			keypoints = self.keypoints,

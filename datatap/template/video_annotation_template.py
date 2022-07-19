@@ -19,12 +19,12 @@ class VideoAnnotationTemplate():
 	"""
 	Describes how a `VideoAnnotation` is structured.
 
-	Consists solely of a `FrameAnnotationTemplate` that describes the structure of each frame.
+	It consists only of a `FrameAnnotationTemplate` that describes its frames.
 	"""
 
 	frames: FrameAnnotationTemplate
 	"""
-	The template describing the structure of each frame.
+	A `FrameAnnotationTemplate` that describes how the frames are structured.
 	"""
 
 	def __init__(self, *, frames: FrameAnnotationTemplate):
@@ -44,7 +44,9 @@ class VideoAnnotationTemplate():
 		"""
 		Deserializes a JSON object into a `VideoAnnotationTemplate`.
 		"""
-		return VideoAnnotationTemplate(frames = FrameAnnotationTemplate.from_json(json["frames"]))
+		return VideoAnnotationTemplate(
+			frames = FrameAnnotationTemplate.from_json(json["frames"])
+		)
 
 	def __repr__(self) -> str:
 		return basic_repr(

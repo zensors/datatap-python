@@ -72,8 +72,8 @@ class MultiInstance:
 			count = self.count
 		)
 
-	def __eq__(self, other: MultiInstance) -> bool:
-		if not isinstance(other, MultiInstance): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, MultiInstance):
 			return NotImplemented
 		return self.bounding_box == other.bounding_box and self.segmentation == other.segmentation and self.count == other.count
 

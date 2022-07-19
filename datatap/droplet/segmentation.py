@@ -51,8 +51,8 @@ class Segmentation:
 	def __repr__(self) -> str:
 		return basic_repr("Segmentation", self.mask, confidence = self.confidence)
 
-	def __eq__(self, other: Segmentation) -> bool:
-		if not isinstance(other, Segmentation): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, Segmentation):
 			return NotImplemented
 		return self.mask == other.mask and self.confidence == other.confidence
 

@@ -51,8 +51,8 @@ class BoundingBox:
 	def __repr__(self) -> str:
 		return basic_repr("BoundingBox", self.rectangle, confidence = self.confidence)
 
-	def __eq__(self, other: BoundingBox) -> bool:
-		if not isinstance(other, BoundingBox): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, BoundingBox):
 			return NotImplemented
 		return self.rectangle == other.rectangle and self.confidence == other.confidence
 

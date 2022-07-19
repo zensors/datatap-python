@@ -173,8 +173,8 @@ class ImageAnnotation:
 			metadata = self.metadata
 		)
 
-	def __eq__(self, other: ImageAnnotation) -> bool:
-		if not isinstance(other, ImageAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, ImageAnnotation):
 			return NotImplemented
 		return self.image == other.image and self.classes == other.classes and self.mask == other.mask
 

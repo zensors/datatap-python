@@ -75,8 +75,8 @@ class ClassAnnotation:
 	def __repr__(self) -> str:
 		return basic_repr("ClassAnnotation", instances = self.instances, multi_instances = self.multi_instances)
 
-	def __eq__(self, other: ClassAnnotation) -> bool:
-		if not isinstance(other, ClassAnnotation): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, ClassAnnotation):
 			return NotImplemented
 		return self.instances == other.instances and self.multi_instances == other.multi_instances
 

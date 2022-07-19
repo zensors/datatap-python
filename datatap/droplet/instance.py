@@ -87,8 +87,8 @@ class Instance:
 			attributes = self.attributes
 		)
 
-	def __eq__(self, other: Instance) -> bool:
-		if not isinstance(other, Instance): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, Instance):
 			return NotImplemented
 		return (self.bounding_box == other.bounding_box and self.segmentation == other.segmentation
 			and self.keypoints == other.keypoints and self.attributes == other.attributes)

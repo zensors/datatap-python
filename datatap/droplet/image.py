@@ -78,8 +78,8 @@ class Image:
 	def __repr__(self) -> str:
 		return basic_repr("Image", uid = self.uid, paths = self.paths)
 
-	def __eq__(self, other: Image) -> bool:
-		if not isinstance(other, Image): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, Image):
 			return NotImplemented
 		return self.paths == other.paths
 

@@ -5,7 +5,7 @@ from typing import Sequence
 
 from datatap.utils import basic_repr
 
-from .dataset import Dataset
+from .dataset import AnyDataset, Dataset
 from ..types import JsonRepository, JsonSplit, JsonTag
 from ..endpoints import ApiEndpoints
 
@@ -126,7 +126,7 @@ class Repository:
         self.namespace = namespace
         self.tags = tags
 
-    def get_dataset(self, tag: str) -> Dataset:
+    def get_dataset(self, tag: str) -> AnyDataset:
         """
         Fetches dataset by its tag (or UID).
         """

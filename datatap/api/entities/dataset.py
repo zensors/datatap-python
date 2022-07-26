@@ -1,14 +1,16 @@
 from __future__ import annotations
 from datatap.api.types.dataset import JsonDatasetRepository
 
-from typing import Generator, List, overload
+from typing import Generator, Generic, List, TypeVar, Union, overload
 
-from datatap.droplet import ImageAnnotation
-from datatap.template import ImageAnnotationTemplate
+from datatap.droplet import ImageAnnotation, VideoAnnotation
+from datatap.template import ImageAnnotationTemplate, VideoAnnotationTemplate
 from datatap.utils import basic_repr
 
 from ..endpoints import ApiEndpoints
 from ..types import JsonDataset
+
+T = TypeVar("T", ImageAnnotationTemplate, VideoAnnotationTemplate)
 
 class DatasetRepository:
     """
@@ -36,7 +38,7 @@ class DatasetRepository:
         self.name = name
         self.namespace = namespace
 
-class Dataset:
+class Dataset(Generic[T]):
     """
     Represents a concrete version of a dataset. Critically, `Dataset`s cannot be changed
     once they're created.
@@ -67,23 +69,33 @@ class Dataset:
     `["training", "validation"]`.
     """
 
-    template: ImageAnnotationTemplate
+    template: T
     """
-    The `ImageAnnotationTemplate` that all annotations in this dataset version adhere to.
+    The template that all annotations in this dataset version adhere to.
     """
 
     @staticmethod
-    def from_json(endpoints: ApiEndpoints, json: JsonDataset) -> Dataset:
+    def from_json(endpoints: ApiEndpoints, json: JsonDataset) -> AnyDataset:
         """
         Creates a new `Dataset` from a `JsonDataset`.
         """
+        template_json = json["template"]
+        template: Union[ImageAnnotationTemplate, VideoAnnotationTemplate]
+
+        if template_json["kind"] == "ImageAnnotationTemplate":
+            template = ImageAnnotationTemplate.from_json(template_json)
+        elif template_json["kind"] == "VideoAnnotationTemplate":
+            template = VideoAnnotationTemplate.from_json(template_json)
+        else:
+            raise ValueError(f"Unknown template kind: {template_json['kind']}")
+
         return Dataset(
             endpoints,
             uid = json["uid"],
             database = json["database"],
             repository = DatasetRepository.from_json(json["repository"]),
             splits = json["splits"],
-            template = ImageAnnotationTemplate.from_json(json["template"])
+            template = template
         )
 
     def __init__(
@@ -94,7 +106,7 @@ class Dataset:
         database: str,
         repository: DatasetRepository,
         splits: List[str],
-        template: ImageAnnotationTemplate
+        template: Union[ImageAnnotationTemplate, VideoAnnotationTemplate]
     ):
         self._endpoints = endpoints
         self.uid = uid
@@ -104,13 +116,38 @@ class Dataset:
         self.template = template
 
     @overload
-    def stream_split(self, split: str) -> Generator[ImageAnnotation, None, None]: ...
+    def stream_split(
+        self: Dataset[ImageAnnotationTemplate],
+        split: str
+    ) -> Generator[ImageAnnotation, None, None]: ...
     @overload
-    def stream_split(self, split: str, chunk: int, nchunks: int) -> Generator[ImageAnnotation, None, None]: ...
-    def stream_split(self, split: str, chunk: int = 0, nchunks: int = 1) -> Generator[ImageAnnotation, None, None]:
+    def stream_split(
+        self: Dataset[ImageAnnotationTemplate],
+        split: str,
+        chunk: int,
+        nchunks: int
+    ) -> Generator[ImageAnnotation, None, None]: ...
+    @overload
+    def stream_split(
+        self: Dataset[VideoAnnotationTemplate],
+        split: str
+    ) -> Generator[VideoAnnotation, None, None]: ...
+    @overload
+    def stream_split(
+        self: Dataset[VideoAnnotationTemplate],
+        split: str,
+        chunk: int,
+        nchunks: int
+    ) -> Generator[VideoAnnotation, None, None]: ...
+    def stream_split(
+        self,
+        split: str,
+        chunk: int = 0,
+        nchunks: int = 1
+    ) -> Generator[Union[ImageAnnotation, VideoAnnotation], None, None]:
         """
-        Streams a specific split of this dataset from the database. All yielded annotations will be of type
-        `ImageAnnotation` and adhere to this dataset version's annotation template.
+        Streams a specific split of this dataset from the database. All yielded annotations will adhere to this
+        dataset's annotation template.
 
         If `chunk` and `nchunks` are omitted, then the full split will be streamed. Otherwise, the split will be
         broken into `nchunks` pieces, and only the chunk identified by `chunk` will be streamed.
@@ -124,7 +161,12 @@ class Dataset:
             chunk = chunk,
             nchunks = nchunks,
         ):
-            yield ImageAnnotation.from_json(droplet)
+            if isinstance(self.template, ImageAnnotationTemplate):
+                yield ImageAnnotation.from_json(droplet)
+            elif isinstance(self.template, VideoAnnotationTemplate): # type: ignore - isinstance is excessive
+                yield VideoAnnotation.from_json(droplet)
+            else:
+                raise ValueError(f"Unknown template kind: {type(self.template)}")
 
     def get_stable_identifier(self) -> str:
         return f"{self.repository.namespace}/{self.repository.name}:{self.uid}"
@@ -137,3 +179,4 @@ class Dataset:
             splits = self.splits
         )
 
+AnyDataset = Union[Dataset[ImageAnnotationTemplate], Dataset[VideoAnnotationTemplate]]

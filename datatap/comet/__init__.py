@@ -9,11 +9,11 @@ except ImportError:
 	from datatap.utils import pprint
 	pprint("{yellow}Unable to import comet_ml.")
 
-from datatap.api.entities import Dataset
+from datatap.api.entities import AnyDataset
 from datatap.droplet.image_annotation import ImageAnnotation
 
 
-def init_experiment(experiment: Experiment, dataset: Dataset):
+def init_experiment(experiment: Experiment, dataset: AnyDataset):
 	"""
 	Initializes an experiment by logging the template and the validation set ground truths if they have not already
 	been logged.
@@ -36,7 +36,7 @@ def init_experiment(experiment: Experiment, dataset: Dataset):
 			name = "datatap/template.json"
 		)
 
-def log_dataset(experiment: Experiment, dataset: Dataset):
+def log_dataset(experiment: Experiment, dataset: AnyDataset):
 	experiment.log_other("datatap-dataset", dataset.get_stable_identifier())
 
 def get_dataset(experiment: Experiment) -> Optional[str]:

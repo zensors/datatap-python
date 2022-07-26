@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datatap.api.entities.dataset import Dataset
+from datatap.api.entities.dataset import AnyDataset
 from typing import Any, List, overload
 
 from datatap.utils import basic_repr
@@ -81,10 +81,10 @@ class Database:
         return Repository.from_json(self._endpoints, self.uid, self._endpoints.repository.query(self.uid, namespace, name))
 
     @overload
-    def get_dataset(self, slug: str) -> Dataset: ...
+    def get_dataset(self, slug: str) -> AnyDataset: ...
     @overload
-    def get_dataset(self, namespace: str, name: str, tag: str) -> Dataset: ...
-    def get_dataset(self, *args: str, **kwargs: Any) -> Dataset:
+    def get_dataset(self, namespace: str, name: str, tag: str) -> AnyDataset: ...
+    def get_dataset(self, *args: str, **kwargs: Any) -> AnyDataset:
         """
         Queries a `Dataset` by its namespace, name, and tag, or via its slug (namespace/name:tag).
         """

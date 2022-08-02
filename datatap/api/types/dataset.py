@@ -1,6 +1,11 @@
-from datatap.template.image_annotation_template import ImageAnnotationTemplateJson
-from typing import List
+from typing import List, Union
+
+from datatap.template.image_annotation_template import \
+    ImageAnnotationTemplateJson
+from datatap.template.video_annotation_template import \
+    VideoAnnotationTemplateJson
 from typing_extensions import TypedDict
+
 
 class JsonDatasetRepository(TypedDict):
     namespace: str
@@ -13,6 +18,6 @@ class JsonDataset(TypedDict):
     uid: str
     database: str
     repository: JsonDatasetRepository
-    template: ImageAnnotationTemplateJson
+    template: Union[ImageAnnotationTemplateJson, VideoAnnotationTemplateJson]
     splits: List[str]
 

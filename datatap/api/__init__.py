@@ -9,6 +9,10 @@ endpoints into python objects with convenience methods for accessing other
 entities.
 """
 
+from . import endpoints
+from . import entities
+from . import types
+
 __all__ = [
     "endpoints",
     "entities",

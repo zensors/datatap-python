@@ -119,6 +119,12 @@ class Rectangle:
 		"""
 		return Rectangle(self.p1.scale(factor), self.p2.scale(factor))
 
+	def center(self) -> Point:
+		"""
+		Computes the center of this rectangle.
+		"""
+		return Point((self.p1.x + self.p2.x) / 2, (self.p1.y + self.p2.y) / 2)
+
 	def scale_from_center(self, factor: Union[float, int, Tuple[float, float], Point]) -> Rectangle:
 		"""
 		Resizes the rectangle according to `factor`, though translates it so
@@ -128,7 +134,7 @@ class Rectangle:
 		`Point`), in which case the rectangle will be scaled independently on
 		each axis.
 		"""
-		center = (self.p1 + self.p2) / 2
+		center = self.center()
 		return Rectangle(
 			(self.p1 - center).scale(factor) + center,
 			(self.p2 - center).scale(factor) + center
@@ -153,8 +159,8 @@ class Rectangle:
 	def __hash__(self) -> int:
 		return hash((self.p1, self.p2))
 
-	def __eq__(self, other: Rectangle) -> bool:
-		if not isinstance(other, Rectangle): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, Rectangle):
 			return NotImplemented
 		return self.p1 == other.p1 and self.p2 == other.p2
 

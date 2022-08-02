@@ -63,8 +63,8 @@ class Keypoint:
 	def __repr__(self) -> str:
 		return basic_repr("Keypoint", self.point, occluded = self.occluded, confidence = self.confidence)
 
-	def __eq__(self, other: Keypoint) -> bool:
-		if not isinstance(other, Keypoint): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, Keypoint):
 			return NotImplemented
 		return self.point == other.point and self.occluded == other.occluded and self.confidence == other.confidence
 

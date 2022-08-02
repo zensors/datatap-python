@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generator, Sequence, Tuple, Union
+from typing import Generator, Sequence, Tuple, Union
 
 from .point import Point, PointJson
 from ..utils import basic_repr
@@ -57,7 +57,7 @@ class Polygon:
 	def __repr__(self) -> str:
 		return basic_repr("Polygon", self.points)
 
-	def __eq__(self, other: Any) -> bool:
+	def __eq__(self, other: object) -> bool:
 		# TODO(mdsavage): currently, this requires the points to be in the same order, not just represent the same polygon
 		if not isinstance(other, Polygon):
 			return NotImplemented

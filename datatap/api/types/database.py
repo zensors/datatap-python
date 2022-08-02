@@ -10,7 +10,7 @@ class JsonDatabaseOptionsDirect(TypedDict):
     host: str
     port: int
 
-JsonDatabaseOptions = Union[JsonDatabaseOptionsDirect]
+JsonDatabaseOptions = JsonDatabaseOptionsDirect
 
 class JsonDatabase(TypedDict):
     """

@@ -4,7 +4,7 @@ from datatap.utils.environment import Environment
 import json
 from base64 import b64encode
 from urllib.parse import urljoin
-from typing import Generator, Optional, Dict, TypeVar, Generic, Type, Any
+from typing import Generator, Optional, Dict, TypeVar, Generic, Type, Any, cast
 
 import requests
 
@@ -23,7 +23,7 @@ class GetRequester(Generic[_T]):
         self.uri = base_uri
 
     def __getitem__(self, s: Type[_S]) -> GetRequester[_S]:
-        return self
+        return cast(GetRequester[_S], self)
 
     def __call__(self, endpoint: str, query_params: Optional[Dict[str, str]] = None) -> _T:
         qualified_uri = urljoin(self.uri, "/api/" + endpoint)
@@ -59,7 +59,7 @@ class PostRequester(Generic[_T]):
         self.uri = base_uri
 
     def __getitem__(self, s: Type[_S]) -> PostRequester[_S]:
-        return self
+        return cast(PostRequester[_S], self)
 
     def __call__(self, endpoint: str, body: Dict[str, Any], query_params: Optional[Dict[str, str]] = None) -> _T:
         qualified_uri = urljoin(self.uri, "/api/" + endpoint)
@@ -96,7 +96,7 @@ class StreamRequester(Generic[_T]):
         self.uri = uri
 
     def __getitem__(self, s: Type[_S]) -> StreamRequester[_S]:
-        return self
+        return cast(StreamRequester[_S], self)
 
     def __call__(self, endpoint: str, query_params: Optional[Dict[str, str]] = None) -> Generator[_T, None, None]:
         qualified_uri = urljoin(self.uri, "/api/" + endpoint)

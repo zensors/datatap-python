@@ -63,9 +63,9 @@ class Mask:
 	def __repr__(self) -> str:
 		return basic_repr("Mask", self.polygons)
 
-	def __eq__(self, other: Mask) -> bool:
+	def __eq__(self, other: object) -> bool:
 		# TODO(mdsavage): currently, this requires the polygons to be in the same order, not just represent the same mask
-		if not isinstance(other, Mask): # type: ignore - pyright complains about the isinstance check being redundant
+		if not isinstance(other, Mask):
 			return NotImplemented
 		return self.polygons == other.polygons
 

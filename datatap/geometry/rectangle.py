@@ -159,8 +159,8 @@ class Rectangle:
 	def __hash__(self) -> int:
 		return hash((self.p1, self.p2))
 
-	def __eq__(self, other: Rectangle) -> bool:
-		if not isinstance(other, Rectangle): # type: ignore - pyright complains about the isinstance check being redundant
+	def __eq__(self, other: object) -> bool:
+		if not isinstance(other, Rectangle):
 			return NotImplemented
 		return self.p1 == other.p1 and self.p2 == other.p2
 
